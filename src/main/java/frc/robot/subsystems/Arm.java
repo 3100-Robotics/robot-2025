@@ -6,7 +6,6 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -18,12 +17,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-
-public class Elevator implements Subsystem{
-    private final int elevatorMotor1ID = 0;
-    private final int elevatorMotor2ID = 0;
-
-    private final double upperSoftLimit = 0;
+public class Arm implements Subsystem{
+    private final int pivotMotorID = 0;
 
     private TalonFXConfiguration motorConfigs = new TalonFXConfiguration().
         withAudio(new AudioConfigs()
@@ -46,33 +41,30 @@ public class Elevator implements Subsystem{
             .withGravityType(GravityTypeValue.Elevator_Static))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
-            .withReverseSoftLimitEnable(true)
-            .withForwardSoftLimitThreshold(upperSoftLimit)
-            .withForwardSoftLimitEnable(true));
+            .withReverseSoftLimitEnable(false)
+            .withForwardSoftLimitThreshold(0)
+            .withForwardSoftLimitEnable(false));
 
 
-    private TalonFX elevatorMotor1 = new TalonFX(elevatorMotor1ID);
-    private TalonFX elevatorMotor2 = new TalonFX(elevatorMotor2ID);
+    private TalonFX pivotMotor = new TalonFX(pivotMotorID);
     
     private double setpoint;
     private final Trigger atSetpoint;
 
-    public Elevator() {
-        elevatorMotor1.getConfigurator().apply(motorConfigs);
-        elevatorMotor2.getConfigurator().apply(motorConfigs);
-        elevatorMotor2.setControl(new Follower(elevatorMotor1ID, false));
+    public Arm() {
+        pivotMotor.getConfigurator().apply(motorConfigs);
 
-        atSetpoint = new Trigger(() -> Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.005);
+        atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.005);
     }
 
     public Command set(double speed) {
-        return this.run(() -> elevatorMotor1.set(speed));
+        return this.run(() -> pivotMotor.set(speed));
     }
 
     public Command goToPos(double pos) {
         return this.runOnce(() -> {
             setpoint = pos;
-            elevatorMotor1.setControl(new MotionMagicExpoVoltage(pos));})
+            pivotMotor.setControl(new MotionMagicExpoVoltage(pos));})
                 .andThen(Commands.waitUntil(atSetpoint));
     }
 
