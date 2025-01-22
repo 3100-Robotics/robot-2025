@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -69,11 +71,13 @@ public class Elevator implements Subsystem{
         return this.run(() -> elevatorMotor1.set(speed));
     }
 
-    public Command goToPos(double pos) {
+    public Command goToPos(double pos, BooleanSupplier shouldLimitForwardMotion, BooleanSupplier shouldLimitBackwardMotion) {
         return this.runOnce(() -> {
             setpoint = pos;
-            elevatorMotor1.setControl(new MotionMagicExpoVoltage(pos));})
-                .andThen(Commands.waitUntil(atSetpoint));
+            elevatorMotor1.setControl(new MotionMagicExpoVoltage(pos)
+                .withLimitForwardMotion(shouldLimitForwardMotion.getAsBoolean())
+                .withLimitReverseMotion(shouldLimitBackwardMotion.getAsBoolean()));})
+            .until(atSetpoint);
     }
 
     public Trigger atSetpoint() {

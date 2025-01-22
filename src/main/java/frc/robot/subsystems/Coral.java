@@ -11,7 +11,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-public class Algae implements Subsystem {
+public class Coral implements Subsystem {
     private final int motorID = 9999;
 
     private SparkBaseConfig config = new SparkMaxConfig()
@@ -24,7 +24,7 @@ public class Algae implements Subsystem {
     private Trigger currentTrigger;
     private LinearFilter currentFilter = LinearFilter.movingAverage(20);
     
-    public Algae() {
+    public Coral() {
         motor.configure(config, null, null);
         currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 20);
     }

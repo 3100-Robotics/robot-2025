@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -61,14 +63,24 @@ public class Arm implements Subsystem{
         return this.run(() -> pivotMotor.set(speed));
     }
 
-    public Command goToPos(double pos) {
-        return this.runOnce(() -> {
+    public Command goToPos(double pos, BooleanSupplier shouldLimitForwardMotion, BooleanSupplier shouldLimitBackwardMotion) {
+        return this.run(() -> {
             setpoint = pos;
-            pivotMotor.setControl(new MotionMagicExpoVoltage(pos));})
-                .andThen(Commands.waitUntil(atSetpoint));
+            pivotMotor.setControl(new MotionMagicExpoVoltage(pos)
+                .withLimitForwardMotion(shouldLimitForwardMotion.getAsBoolean())
+                .withLimitReverseMotion(shouldLimitBackwardMotion.getAsBoolean()));})
+            .until(atSetpoint);
     }
 
     public Trigger atSetpoint() {
         return atSetpoint;
+    }
+
+    public void setSoftLimits(double forwardsLimit, double backwardLimit) {
+        // pivotMotor.getConfigurator()
+        //     .apply(new SoftwareLimitSwitchConfigs()
+        //         .withForwardSoftLimitThreshold(forwardsLimit)
+        //         .withReverseSoftLimitThreshold(backwardLimit), 1);
+
     }
 }
