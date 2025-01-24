@@ -3,24 +3,35 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class Arm implements Subsystem{
     private final int pivotMotorID = 0;
+    private final int pivotEncoderID = 0;
+
+    private CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration().
+        withMagnetSensor(new MagnetSensorConfigs()
+            .withMagnetOffset(0)
+            .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+            .withAbsoluteSensorDiscontinuityPoint(0));
 
     private TalonFXConfiguration motorConfigs = new TalonFXConfiguration().
         withAudio(new AudioConfigs()
@@ -49,11 +60,19 @@ public class Arm implements Subsystem{
 
 
     private TalonFX pivotMotor = new TalonFX(pivotMotorID);
+
+    private CANcoder pivotEncoder = new CANcoder(pivotEncoderID);
     
     private double setpoint;
     private final Trigger atSetpoint;
 
     public Arm() {
+        pivotEncoder.getConfigurator().apply(encoderConfiguration);
+
+        motorConfigs.withFeedback(new FeedbackConfigs()
+            .withRemoteCANcoder(pivotEncoder)
+            .withRotorToSensorRatio(1)
+            .withSensorToMechanismRatio(1));
         pivotMotor.getConfigurator().apply(motorConfigs);
 
         atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.005);
@@ -76,11 +95,8 @@ public class Arm implements Subsystem{
         return atSetpoint;
     }
 
-    public void setSoftLimits(double forwardsLimit, double backwardLimit) {
-        // pivotMotor.getConfigurator()
-        //     .apply(new SoftwareLimitSwitchConfigs()
-        //         .withForwardSoftLimitThreshold(forwardsLimit)
-        //         .withReverseSoftLimitThreshold(backwardLimit), 1);
-
+    public double getPosition() {
+        return pivotMotor.getPosition().getValueAsDouble();
     }
+
 }

@@ -83,4 +83,8 @@ public class Elevator implements Subsystem{
     public Trigger atSetpoint() {
         return atSetpoint;
     }
+
+    public double getHeight() {
+        return elevatorMotor1.getPosition().getValueAsDouble();
+    }
 }

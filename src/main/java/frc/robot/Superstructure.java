@@ -1,20 +1,26 @@
 package frc.robot;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
 
 public class Superstructure {
     
-    private Supplier<Command> elevatorController;
-    private Supplier<Command> armController;
+    Trigger forwardArmLimit;
+    Trigger backwardArmLimit;
 
-    public Superstructure(Supplier<Command> elevatorControl, Supplier<Command> armControl) {
-        elevatorController = elevatorControl;
-        armController = armControl;
+    private Elevator elevator;
+    private Arm arm;
+
+    public Superstructure(Elevator elevator, Arm arm) {
+        this.elevator = elevator;
+        this.arm = arm;
+
+        
     }
 
     public Command goToPos(double height, double angle) {
-        return elevatorController.get();
+        return elevator.goToPos(0, null, null);
     }
 }
