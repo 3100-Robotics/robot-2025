@@ -47,6 +47,7 @@ public class RobotContainer {
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
     public RobotContainer() {
+        System.out.println("robot container exists");
         configureBindings();
     }
 

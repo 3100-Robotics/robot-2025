@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
-public class Superstructure implements Subsystem{
+public class Superstructure extends SubsystemBase {
     final double armLength = 0.865;
     
     // Trigger forwardArmLimit;
@@ -21,7 +22,7 @@ public class Superstructure implements Subsystem{
     private Arm arm;
 
     private Mechanism2d mech = new Mechanism2d(2, 8);
-    private MechanismRoot2d root = mech.getRoot("elevator", 0, 0);
+    private MechanismRoot2d root = mech.getRoot("elevator", 1, 0);
     private MechanismLigament2d elevatorMech;
     private MechanismLigament2d armMech;
 
@@ -43,11 +44,14 @@ public class Superstructure implements Subsystem{
         //         elevator.getHeight()-armLength*Math.sin(arm.getPosition()));
         //     return !(driveTrainRect.contains(pos) && climberRect.contains(pos));
         // });
+        System.out.println("superstructure is existing");
+        SmartDashboard.putData("elevator + arm", mech);
     }
 
     @Override
-    public void simulationPeriodic() {
-        SmartDashboard.putData(mech);
+    public void periodic() {
+        // System.out.println("running periodic");
+        // SmartDashboard.putData(mech);
     }
 
     public Command goToPos(double height, double angle) {
