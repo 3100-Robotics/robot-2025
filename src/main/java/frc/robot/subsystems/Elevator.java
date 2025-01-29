@@ -105,12 +105,10 @@ public class Elevator implements Subsystem{
         return this.run(() -> elevatorMotor1.set(speed));
     }
 
-    public Command goToPos(double pos, BooleanSupplier shouldLimitForwardMotion, BooleanSupplier shouldLimitBackwardMotion) {
+    public Command goToPos(double pos) {
         return this.runOnce(() -> {
             setpoint = pos;
-            elevatorMotor1.setControl(new MotionMagicExpoVoltage(pos)
-                .withLimitForwardMotion(shouldLimitForwardMotion.getAsBoolean())
-                .withLimitReverseMotion(shouldLimitBackwardMotion.getAsBoolean()));})
+            elevatorMotor1.setControl(new MotionMagicExpoVoltage(pos));})
             .until(atSetpoint);
     }
 

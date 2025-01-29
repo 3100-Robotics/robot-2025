@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.States;
 import frc.robot.subsystems.Arm;
@@ -57,13 +58,24 @@ public class Superstructure extends SubsystemBase {
         armMech.setAngle(arm.getPosition());
     }
 
+    private Command goTo(double angle, double height, String leftRight) { // TODO: make left/right function
+        if (currentState == States.resting) {
+            return Commands.parallel(
+                    elevator.goToPos(height),
+                    arm.goToPos(angle));
+        }
+        else {
+            return Commands.sequence(
+                    Commands.parallel(
+                            elevator.goToPos(height),
+                            arm.goToPos(angle)),
+                    Commands.parallel(
+                            elevator.goToPos(States.resting.elevatorHeight),
+                            arm.goToPos(States.resting.armAngle)));
+        }
+    }
+
     public Command goToPos(States desiredState, String leftRight) {
-        return runOnce(() -> {
-            if (desiredState.equals(States.resting) 
-                | desiredState.equals(currentState) 
-                | currentState.equals(States.resting)) {
-                
-            }
-        });
+        return defer(() -> goTo(desiredState.armAngle, desiredState.elevatorHeight, leftRight));
     }
 }

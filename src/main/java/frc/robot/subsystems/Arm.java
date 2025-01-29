@@ -117,12 +117,10 @@ public class Arm implements Subsystem{
         return this.run(() -> pivotMotor.set(speed));
     }
 
-    public Command goToPos(double pos, BooleanSupplier shouldLimitForwardMotion, BooleanSupplier shouldLimitBackwardMotion) {
+    public Command goToPos(double pos) {
         return this.run(() -> {
             setpoint = pos;
-            pivotMotor.setControl(new MotionMagicExpoVoltage(pos)
-                .withLimitForwardMotion(shouldLimitForwardMotion.getAsBoolean())
-                .withLimitReverseMotion(shouldLimitBackwardMotion.getAsBoolean()));})
+            pivotMotor.setControl(new MotionMagicExpoVoltage(pos));})
             .until(atSetpoint);
     }
 
