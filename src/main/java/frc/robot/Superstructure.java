@@ -23,7 +23,6 @@ public class Superstructure extends SubsystemBase {
     private Arm arm;
 
     private States currentState = States.resting;
-    private String leftRightState = "left";
 
     private Mechanism2d mech = new Mechanism2d(2, 8);
     private MechanismRoot2d root = mech.getRoot("elevator", 1, 0);

@@ -2,13 +2,12 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
@@ -30,10 +29,10 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class Arm implements Subsystem{
-    private final int pivotMotorID = 0;
-    private final int pivotEncoderID = 0;
+    private final int pivotMotorID = 15;
+    private final int pivotEncoderID = 16;
 
-    private final double gearRatio = 1;
+    private final double gearRatio = 56.78;
 
     private CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration().
         withMagnetSensor(new MagnetSensorConfigs()
@@ -52,7 +51,7 @@ public class Arm implements Subsystem{
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(0)
+            .withKP(0.1)
             .withKI(0)
             .withKD(0)
             .withKG(0)
@@ -64,7 +63,9 @@ public class Arm implements Subsystem{
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(false)
             .withForwardSoftLimitThreshold(0)
-            .withForwardSoftLimitEnable(false));
+            .withForwardSoftLimitEnable(false))
+        .withMotionMagic(new MotionMagicConfigs()
+            .withMotionMagicAcceleration(10));
 
 
     private TalonFX pivotMotor = new TalonFX(pivotMotorID);
@@ -119,6 +120,7 @@ public class Arm implements Subsystem{
 
     public Command goToPos(double pos) {
         return this.run(() -> {
+            System.out.println("arm has been told to move!");
             setpoint = pos;
             pivotMotor.setControl(new MotionMagicExpoVoltage(pos));})
             .until(atSetpoint);

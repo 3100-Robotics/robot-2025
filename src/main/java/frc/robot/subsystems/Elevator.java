@@ -2,10 +2,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
@@ -27,12 +27,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 public class Elevator implements Subsystem{
-    private final int elevatorMotor1ID = 0;
-    private final int elevatorMotor2ID = 0;
+    private final int elevatorMotor1ID = 13;
+    private final int elevatorMotor2ID = 14;
 
     private final double upperSoftLimit = 0;
     
-    private final double gearRatio = 1;
+    private final double gearRatio = 7.75;
 
     private TalonFXConfiguration motorConfigs = new TalonFXConfiguration().
         withAudio(new AudioConfigs()
@@ -45,7 +45,7 @@ public class Elevator implements Subsystem{
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(0)
+            .withKP(0.1)
             .withKI(0)
             .withKD(0)
             .withKG(0)
@@ -57,7 +57,11 @@ public class Elevator implements Subsystem{
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(true)
             .withForwardSoftLimitThreshold(upperSoftLimit)
-            .withForwardSoftLimitEnable(true));
+            .withForwardSoftLimitEnable(true))
+        .withFeedback(new FeedbackConfigs()
+            .withSensorToMechanismRatio(gearRatio*0.0444))
+        .withMotionMagic(new MotionMagicConfigs()
+            .withMotionMagicAcceleration(10));
 
 
     private TalonFX elevatorMotor1 = new TalonFX(elevatorMotor1ID);
@@ -107,6 +111,7 @@ public class Elevator implements Subsystem{
 
     public Command goToPos(double pos) {
         return this.runOnce(() -> {
+            System.out.println("elevator needs to move!");
             setpoint = pos;
             elevatorMotor1.setControl(new MotionMagicExpoVoltage(pos));})
             .until(atSetpoint);

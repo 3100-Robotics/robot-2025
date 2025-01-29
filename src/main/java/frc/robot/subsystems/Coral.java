@@ -12,7 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Coral implements Subsystem {
-    private final int motorID = 9999;
+    private final int motorID = 17;
 
     private SparkBaseConfig config = new SparkMaxConfig()
         .idleMode(IdleMode.kBrake)
