@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.States;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
@@ -20,6 +20,9 @@ public class Superstructure extends SubsystemBase {
 
     private Elevator elevator;
     private Arm arm;
+
+    private States currentState = States.resting;
+    private String leftRightState = "left";
 
     private Mechanism2d mech = new Mechanism2d(2, 8);
     private MechanismRoot2d root = mech.getRoot("elevator", 1, 0);
@@ -50,11 +53,17 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // System.out.println("running periodic");
-        // SmartDashboard.putData(mech);
+        elevatorMech.setLength(elevator.getHeight());
+        armMech.setAngle(arm.getPosition());
     }
 
-    public Command goToPos(double height, double angle) {
-        return elevator.goToPos(0, null, null);
+    public Command goToPos(States desiredState, String leftRight) {
+        return runOnce(() -> {
+            if (desiredState.equals(States.resting) 
+                | desiredState.equals(currentState) 
+                | currentState.equals(States.resting)) {
+                
+            }
+        });
     }
 }
