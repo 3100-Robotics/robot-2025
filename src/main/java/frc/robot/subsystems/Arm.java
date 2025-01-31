@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -53,14 +55,14 @@ public class Arm extends SubsystemBase {
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(10)
+            .withKP(20)
             .withKI(0)
             .withKD(0)
             .withKG(0)
             .withKS(0)
             .withKV(0)
             .withKA(0)
-            .withGravityType(GravityTypeValue.Elevator_Static))
+            .withGravityType(GravityTypeValue.Arm_Cosine))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(false)
@@ -79,7 +81,7 @@ public class Arm extends SubsystemBase {
 
     private SingleJointedArmSim armSim = new SingleJointedArmSim( 
         DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength,
-        -Math.PI/2, Math.PI/2, true, 0);
+        -3*Math.PI/2,3*Math.PI/2, true, 0);
 
     public Arm() {
         pivotEncoder.getConfigurator().apply(encoderConfiguration);
@@ -91,6 +93,10 @@ public class Arm extends SubsystemBase {
         pivotMotor.getConfigurator().apply(motorConfigs);
 
         atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.005);
+
+        if (Utils.isSimulation()) {
+            armSim.setState(0, 0);
+        }
     }
 
     @Override
@@ -114,7 +120,7 @@ public class Arm extends SubsystemBase {
         // DCMotorSim returns mechanism position/velocity (after gear ratio)
         encoderSim.setRawPosition(armSim.getAngleRads()/(2*Math.PI));
         encoderSim.setVelocity(armSim.getVelocityRadPerSec()/(2*Math.PI));
-
+        SmartDashboard.putNumber("sim angle", armSim.getAngleRads());
         talonFXSim.setRawRotorPosition(armSim.getAngleRads()*gearRatio/(2*Math.PI));
         talonFXSim.setRotorVelocity(armSim.getVelocityRadPerSec()*gearRatio/(2*Math.PI));
     }

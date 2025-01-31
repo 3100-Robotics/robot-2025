@@ -48,7 +48,6 @@ public class RobotContainer {
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
     public RobotContainer() {
-        System.out.println("robot container exists");
         configureBindings();
     }
 
@@ -64,7 +63,130 @@ public class RobotContainer {
             )
         );
 
-        
+        ///////////
+        // ALGAE //
+        ///////////
+
+        // collection
+        // floor
+        coDriverJoystick.a().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeFromGround, "left"),
+                algae.set(-0.5),
+                Commands.waitUntil(algae.currentHit()),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // right
+        coDriverJoystick.a().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeFromGround, "right"),
+                algae.set(-0.5),
+                Commands.waitUntil(algae.currentHit()),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // between l2 and l3
+        coDriverJoystick.x().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeFromReefLow, "left"),
+                algae.set(-0.5),
+                Commands.waitUntil(algae.currentHit()),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // right
+        coDriverJoystick.x().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeFromReefLow, "right"),
+                algae.set(-0.5),
+                Commands.waitUntil(algae.currentHit()),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // between l3 and l4
+        coDriverJoystick.y().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeFromReefHigh, "left"),
+                algae.set(-0.5),
+                Commands.waitUntil(algae.currentHit()),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // right
+        coDriverJoystick.y().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeFromReefHigh, "right"),
+                algae.set(-0.5),
+                Commands.waitUntil(algae.currentHit()),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+        // scoring
+        // processor
+        // left
+        coDriverJoystick.rightBumper().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeToProcessor, "left"),
+                algae.set(0.5),
+                Commands.waitSeconds(0.25),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // right
+        coDriverJoystick.rightBumper().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeToProcessor, "right"),
+                algae.set(0.5),
+                Commands.waitSeconds(0.25),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // barge
+        // left
+        coDriverJoystick.leftBumper().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeToBardge, "left"),
+                algae.set(0.5),
+                Commands.waitSeconds(0.25),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // right
+        coDriverJoystick.leftBumper().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
+                superstructure.goToPos(States.algaeToBardge, "right"),
+                algae.set(0.5),
+                Commands.waitSeconds(0.25),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither")));
+
+        ///////////
+        // CORAL //
+        ///////////
+
+        // collection
+        coDriverJoystick.povUp().onTrue(Commands.sequence(
+                superstructure.goToPos(States.coralHumanPlayer, "neither"),
+                coral.set(-0.5),
+                Commands.waitUntil(coral.currentHit()),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // scoring
+        // l2
+        coDriverJoystick.povUp().onTrue(Commands.sequence(
+                superstructure.goToPos(States.coralReefL2, "neither"),
+                coral.set(0.5),
+                Commands.waitSeconds(0.25),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // l3
+        coDriverJoystick.povUp().onTrue(Commands.sequence(
+                superstructure.goToPos(States.coralReefL3, "neither"),
+                coral.set(0.5),
+                Commands.waitSeconds(0.25),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // l4
+        coDriverJoystick.povUp().onTrue(Commands.sequence(
+                superstructure.goToPos(States.coralReefL4, "neither"),
+                coral.set(0.5),
+                Commands.waitSeconds(0.25),
+                superstructure.goToPos(States.resting, "neither")));
+
+        // reset the field-centric heading on left bumper press
+        // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        drivetrain.registerTelemetry(logger::telemeterize);
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -72,16 +194,6 @@ public class RobotContainer {
         driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        driverJoystick.x().onTrue(superstructure.goToPos(States.algaeToBardge, "left"));
-        driverJoystick.y().onTrue(superstructure.goToPos(States.algaeFromGround, "left"));
-        driverJoystick.a().onTrue(superstructure.goToPos(States.resting, null));
-//        driverJoystick.b().onTrue(elevator.set(1));
-
-        // reset the field-centric heading on left bumper press
-        // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {

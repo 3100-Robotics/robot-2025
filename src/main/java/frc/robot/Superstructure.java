@@ -22,7 +22,7 @@ public class Superstructure extends SubsystemBase {
 
     private States currentState = States.resting;
 
-    private Mechanism2d mech = new Mechanism2d(2, 8);
+    private Mechanism2d mech = new Mechanism2d(2, 3);
     private MechanismRoot2d root = mech.getRoot("elevator", 1, 0);
     private MechanismLigament2d elevatorMech;
     private MechanismLigament2d armMech;
@@ -42,28 +42,31 @@ public class Superstructure extends SubsystemBase {
     public void periodic() {
         // System.out.println(arm.getPosition());
         elevatorMech.setLength(elevator.getHeight());
-        armMech.setAngle(Units.rotationsToDegrees(arm.getPosition()) - 90);
+        armMech.setAngle(Units.rotationsToDegrees(arm.getPosition())-90);
+        SmartDashboard.putNumber("arm pos", Units.rotationsToDegrees(arm.getPosition()));
     }
 
     private Command goTo(States state, String leftRight) { // TODO: make left/right function
-        if (currentState == States.resting) {
-            return Commands.parallel(
+        if (currentState == States.resting || currentState == state) {
+            return Commands.sequence(
+                    runOnce(() -> currentState=state),
+                    Commands.parallel(
                     elevator.goToPos(state.elevatorHeight),
-                    arm.goToPos(state.armAngle)).andThen(runOnce(() -> currentState=state));
+                    arm.goToPos(leftRight.equals("right") ? state.armAngle : 0.5-state.armAngle)));
         }
         else {
             return Commands.sequence(
-                    Commands.parallel(
-                            elevator.goToPos(state.elevatorHeight),
-                            arm.goToPos(state.armAngle)),
+                    runOnce(() -> currentState=state),
                     Commands.parallel(
                             elevator.goToPos(States.resting.elevatorHeight),
                             arm.goToPos(States.resting.armAngle)),
-                    runOnce(() -> currentState=state));
+                    Commands.parallel(
+                            elevator.goToPos(state.elevatorHeight),
+                            arm.goToPos(leftRight.equals("right") ? state.armAngle : 0.5-state.armAngle)));
         }
     }
 
-    public Command goToPos(States desiredState, String leftRight) {
-        return defer(() -> goTo(desiredState, leftRight));
+    public Command goToPos(States desiredState, String side) {
+        return defer(() -> goTo(desiredState, side));
     }
 }
