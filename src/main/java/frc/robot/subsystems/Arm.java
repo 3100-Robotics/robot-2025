@@ -69,6 +69,7 @@ public class Arm extends SubsystemBase {
         .withMotionMagic(new MotionMagicConfigs()
             .withMotionMagicAcceleration(10));
 
+// declaration of motors and CANcoders
 
     private TalonFX pivotMotor = new TalonFX(pivotMotorID);
 
@@ -77,9 +78,10 @@ public class Arm extends SubsystemBase {
     private double setpoint;
     private final Trigger atSetpoint;
 
+// arm sim set up
     private SingleJointedArmSim armSim = new SingleJointedArmSim( 
-        DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength,
-        -Math.PI/2, Math.PI/2, true, 0);
+        DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength, // sets arm motors, gear ratios, the momentum of the arm, and the arm length
+        -Math.PI/2, Math.PI/2, true, 0); // sets the min and max angles of the arm, sets simulation gravity, and the starting angle
 
     public Arm() {
         pivotEncoder.getConfigurator().apply(encoderConfiguration);
