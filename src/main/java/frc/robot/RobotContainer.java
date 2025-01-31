@@ -76,6 +76,7 @@ public class RobotContainer {
         driverJoystick.x().onTrue(superstructure.goToPos(States.algaeToBardge, "left"));
         driverJoystick.y().onTrue(superstructure.goToPos(States.algaeFromGround, "left"));
         driverJoystick.a().onTrue(superstructure.goToPos(States.resting, null));
+//        driverJoystick.b().onTrue(elevator.set(1));
 
         // reset the field-centric heading on left bumper press
         // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

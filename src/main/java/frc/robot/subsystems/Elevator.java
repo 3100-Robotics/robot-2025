@@ -46,10 +46,10 @@ public class Elevator extends SubsystemBase {
             .withSupplyCurrentLimit(40)
             .withSupplyCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs()
-            .withInverted(InvertedValue.CounterClockwise_Positive)
+            .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(1)
+            .withKP(10)
             .withKI(0)
             .withKD(0)
             .withKG(0)
@@ -61,7 +61,7 @@ public class Elevator extends SubsystemBase {
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(true)
             .withForwardSoftLimitThreshold(upperSoftLimit)
-            .withForwardSoftLimitEnable(true))
+            .withForwardSoftLimitEnable(false))
         .withFeedback(new FeedbackConfigs()
             .withSensorToMechanismRatio(gearRatio))
         .withMotionMagic(new MotionMagicConfigs()
@@ -87,9 +87,9 @@ public class Elevator extends SubsystemBase {
 
         atSetpoint = new Trigger(() -> Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.005);
 
-        // if (Utils.isSimulation()) {
-        //     elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
-        // }
+         if (Utils.isSimulation()) {
+             elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
+         }
     }
 
     @Override
@@ -111,13 +111,13 @@ public class Elevator extends SubsystemBase {
         // apply the new rotor position and velocity to the TalonFX;
         // note that this is rotor position/velocity (before gear ratio), but
         // DCMotorSim returns mechanism position/velocity (after gear ratio)
-        System.out.println(elevatorSim.getPositionMeters());
+//        System.out.println(elevatorSim.getPositionMeters());
         talonFXSim.setRawRotorPosition(elevatorSim.getPositionMeters()*gearRatio/(sproketRadius*2*Math.PI));
         talonFXSim.setRotorVelocity(elevatorSim.getVelocityMetersPerSecond()*gearRatio/(sproketRadius*2*Math.PI));
     }
 
     public Command set(double speed) {
-        return this.run(() -> elevatorMotor1.set(speed));
+        return this.run(() -> elevatorMotor1.setVoltage(speed));
     }
 
     public Command goToPos(double pos) {
