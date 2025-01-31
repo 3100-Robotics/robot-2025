@@ -12,7 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Climber implements Subsystem {
-    private final int motorID = 19;
+    private final int motorID = 20;
 
     private SparkBaseConfig config = new SparkMaxConfig()
         .idleMode(IdleMode.kBrake)

@@ -24,15 +24,17 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class Arm implements Subsystem{
-    private final int pivotMotorID = 15;
-    private final int pivotEncoderID = 16;
+public class Arm extends SubsystemBase {
+    private final int pivotMotorID = 16;
+    private final int pivotEncoderID = 17;
 
     private final double gearRatio = 56.78;
+    private final double armLength = 0.69;
 
     private CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration().
         withMagnetSensor(new MagnetSensorConfigs()
@@ -51,7 +53,7 @@ public class Arm implements Subsystem{
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(0.1)
+            .withKP(10)
             .withKI(0)
             .withKD(0)
             .withKG(0)
@@ -75,10 +77,9 @@ public class Arm implements Subsystem{
     private double setpoint;
     private final Trigger atSetpoint;
 
-    private final DCMotorSim m_motorSimModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(
-            DCMotor.getKrakenX60(1), 0.001, gearRatio),
-        DCMotor.getKrakenX60(1));
+    private SingleJointedArmSim armSim = new SingleJointedArmSim( 
+        DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength,
+        -Math.PI/2, Math.PI/2, true, 0);
 
     public Arm() {
         pivotEncoder.getConfigurator().apply(encoderConfiguration);
@@ -95,6 +96,7 @@ public class Arm implements Subsystem{
     @Override
     public void simulationPeriodic() {
         var talonFXSim = pivotMotor.getSimState();
+        var encoderSim = pivotEncoder.getSimState();
 
         // set the supply voltage of the TalonFX
         talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
@@ -104,14 +106,17 @@ public class Arm implements Subsystem{
 
         // use the motor voltage to calculate new position and velocity
         // using WPILib's DCMotorSim class for physics simulation
-        m_motorSimModel.setInputVoltage(motorVoltage.in(Volts));
-        m_motorSimModel.update(0.020); // assume 20 ms loop time
+        armSim.setInputVoltage(motorVoltage.in(Volts));
+        armSim.update(0.020); // assume 20 ms loop time
 
         // apply the new rotor position and velocity to the TalonFX;
         // note that this is rotor position/velocity (before gear ratio), but
         // DCMotorSim returns mechanism position/velocity (after gear ratio)
-        talonFXSim.setRawRotorPosition(m_motorSimModel.getAngularPosition().times(gearRatio));
-        talonFXSim.setRotorVelocity(m_motorSimModel.getAngularVelocity().times(gearRatio));
+        encoderSim.setRawPosition(armSim.getAngleRads()/(2*Math.PI));
+        encoderSim.setVelocity(armSim.getVelocityRadPerSec()/(2*Math.PI));
+
+        talonFXSim.setRawRotorPosition(armSim.getAngleRads()*gearRatio/(2*Math.PI));
+        talonFXSim.setRotorVelocity(armSim.getVelocityRadPerSec()*gearRatio/(2*Math.PI));
     }
 
     public Command set(double speed) {
@@ -120,7 +125,7 @@ public class Arm implements Subsystem{
 
     public Command goToPos(double pos) {
         return this.run(() -> {
-            System.out.println("arm has been told to move!");
+            // System.out.println("arm has been told to move!");
             setpoint = pos;
             pivotMotor.setControl(new MotionMagicExpoVoltage(pos));})
             .until(atSetpoint);

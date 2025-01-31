@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -15,9 +16,6 @@ import frc.robot.subsystems.Elevator;
 
 public class Superstructure extends SubsystemBase {
     final double armLength = 0.865;
-    
-    // Trigger forwardArmLimit;
-    // Trigger backwardArmLimit;
 
     private Elevator elevator;
     private Arm arm;
@@ -37,44 +35,35 @@ public class Superstructure extends SubsystemBase {
         armMech = elevatorMech.append(
             new MechanismLigament2d("arm", armLength, 90, 6, new Color8Bit(Color.kAqua)));
         
-
-        // Rectangle2d driveTrainRect = new Rectangle2d(new Pose2d(0, 0, new Rotation2d()), 1, 0.2);
-        // Rectangle2d climberRect = new Rectangle2d(new Pose2d(0, 0.25, new Rotation2d()), 1, 0.5);
-
-        // forwardArmLimit = new Trigger(() -> {
-        //     Translation2d pos = new Translation2d(
-        //         armLength*Math.cos(arm.getPosition()), 
-        //         elevator.getHeight()-armLength*Math.sin(arm.getPosition()));
-        //     return !(driveTrainRect.contains(pos) && climberRect.contains(pos));
-        // });
-        System.out.println("superstructure is existing");
         SmartDashboard.putData("elevator + arm", mech);
     }
 
     @Override
     public void periodic() {
+        // System.out.println(arm.getPosition());
         elevatorMech.setLength(elevator.getHeight());
-        armMech.setAngle(arm.getPosition());
+        armMech.setAngle(Units.rotationsToDegrees(arm.getPosition()) - 90);
     }
 
-    private Command goTo(double angle, double height, String leftRight) { // TODO: make left/right function
+    private Command goTo(States state, String leftRight) { // TODO: make left/right function
         if (currentState == States.resting) {
             return Commands.parallel(
-                    elevator.goToPos(height),
-                    arm.goToPos(angle));
+                    elevator.goToPos(state.elevatorHeight),
+                    arm.goToPos(state.armAngle)).andThen(runOnce(() -> currentState=state));
         }
         else {
             return Commands.sequence(
                     Commands.parallel(
-                            elevator.goToPos(height),
-                            arm.goToPos(angle)),
+                            elevator.goToPos(state.elevatorHeight),
+                            arm.goToPos(state.armAngle)),
                     Commands.parallel(
                             elevator.goToPos(States.resting.elevatorHeight),
-                            arm.goToPos(States.resting.armAngle)));
+                            arm.goToPos(States.resting.armAngle)),
+                    runOnce(() -> currentState=state));
         }
     }
 
     public Command goToPos(States desiredState, String leftRight) {
-        return defer(() -> goTo(desiredState.armAngle, desiredState.elevatorHeight, leftRight));
+        return defer(() -> goTo(desiredState, leftRight));
     }
 }

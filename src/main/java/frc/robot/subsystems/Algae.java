@@ -12,7 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Algae implements Subsystem {
-    private final int motorID = 18;
+    private final int motorID = 19;
 
     private SparkBaseConfig config = new SparkMaxConfig()
         .idleMode(IdleMode.kBrake)
