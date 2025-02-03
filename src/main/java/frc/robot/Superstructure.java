@@ -52,7 +52,7 @@ public class Superstructure extends SubsystemBase {
                     runOnce(() -> currentState=state),
                     Commands.parallel(
                     elevator.goToPos(state.elevatorHeight),
-                    arm.goToPos(leftRight.equals("right") ? state.armAngle : 0.5-state.armAngle)));
+                    arm.goToPos(leftRight.equals("left") ? 0.5-state.armAngle : state.armAngle)));
         }
         else {
             return Commands.sequence(
@@ -62,7 +62,7 @@ public class Superstructure extends SubsystemBase {
                             arm.goToPos(States.resting.armAngle)),
                     Commands.parallel(
                             elevator.goToPos(state.elevatorHeight),
-                            arm.goToPos(leftRight.equals("right") ? state.armAngle : 0.5-state.armAngle)));
+                            arm.goToPos(leftRight.equals("left") ? 0.5-state.armAngle : state.armAngle)));
         }
     }
 
