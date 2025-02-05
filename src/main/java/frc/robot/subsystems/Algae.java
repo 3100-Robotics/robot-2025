@@ -21,7 +21,7 @@ public class Algae implements Subsystem {
 
     private SparkMax motor = new SparkMax(motorID, MotorType.kBrushless);
 
-    private Trigger currentTrigger;
+    private Trigger currentTrigger; 
     private LinearFilter currentFilter = LinearFilter.movingAverage(20);
     
     public Algae() {
@@ -30,7 +30,7 @@ public class Algae implements Subsystem {
     }
 
     public Command set(double speed) {
-        return runOnce(() -> motor.set(speed));
+        return runOnce(() -> motor.set(speed)); // sets the moters to run at @speed 
     }
 
     public Trigger currentHit() {
