@@ -38,7 +38,7 @@ public class Arm extends SubsystemBase {
 
     private CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration().
         withMagnetSensor(new MagnetSensorConfigs()
-            .withMagnetOffset(0)
+            .withMagnetOffset(-0.004639)
             .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
             .withAbsoluteSensorDiscontinuityPoint(0));
 
@@ -53,7 +53,7 @@ public class Arm extends SubsystemBase {
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(10)
+            .withKP(5) // 10
             .withKI(0)
             .withKD(0)
             .withKG(0)

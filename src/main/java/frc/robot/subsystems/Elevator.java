@@ -49,7 +49,7 @@ public class Elevator extends SubsystemBase {
             .withInverted(InvertedValue.CounterClockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(1)
+            .withKP(0.5) //1
             .withKI(0)
             .withKD(0)
             .withKG(0)
