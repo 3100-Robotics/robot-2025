@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -17,12 +16,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.sim.ChassisReference;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,7 +33,8 @@ public class Elevator extends SubsystemBase {
     private final double upperSoftLimit = 0;
     
     private final double gearRatio = 7.75;
-    public final double sproketRadius = 0.0444/2;
+    private final double sprocketRadius = 0.0444/2;
+    private final double carriageRatio = 3;
 
     private TalonFXConfiguration motorConfigs = new TalonFXConfiguration().
         withAudio(new AudioConfigs()
@@ -79,7 +76,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorSim elevatorSim = new ElevatorSim(   
         DCMotor.getKrakenX60(2),
         gearRatio,
-        10, sproketRadius, 0, 1.87, true, 0);
+        10, sprocketRadius, 0, 1.87, true, 0);
 
     public Elevator() {
         elevatorMotor1.getConfigurator().apply(motorConfigs);
@@ -124,8 +121,8 @@ public class Elevator extends SubsystemBase {
         // note that this is rotor position/velocity (before gear ratio), but
         // DCMotorSim returns mechanism position/velocity (after gear ratio)
         System.out.println(elevatorSim.getPositionMeters());
-        talonFXSim.setRawRotorPosition(elevatorSim.getPositionMeters()*gearRatio/(sproketRadius*2*Math.PI));
-        talonFXSim.setRotorVelocity(elevatorSim.getVelocityMetersPerSecond()*gearRatio/(sproketRadius*2*Math.PI));
+        talonFXSim.setRawRotorPosition(elevatorSim.getPositionMeters()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
+        talonFXSim.setRotorVelocity(elevatorSim.getVelocityMetersPerSecond()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
     }
 
     public Command set(double speed) {
@@ -134,7 +131,7 @@ public class Elevator extends SubsystemBase {
 
     public Command goToPos(double pos) {
         return this.run(() -> {
-            double rotations = pos / (Math.PI * 2 * sproketRadius);
+            double rotations = pos / (Math.PI * 2 * sprocketRadius * carriageRatio);
             setpoint = rotations;
             elevatorMotor1.setControl(new MotionMagicExpoVoltage(rotations));})
             .until(atSetpoint);
@@ -145,6 +142,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getHeight() {
-        return elevatorMotor1.getPosition().getValueAsDouble()*sproketRadius*2*Math.PI;
+        return elevatorMotor1.getPosition().getValueAsDouble()* sprocketRadius *2*Math.PI;
     }
 }

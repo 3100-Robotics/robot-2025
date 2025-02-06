@@ -50,6 +50,8 @@ public class RobotContainer {
     public final Arm arm = new Arm();
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
+    public final Vision vision = new Vision(drivetrain::getPos, drivetrain.getField());
+
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
 

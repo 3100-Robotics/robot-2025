@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -284,5 +285,18 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    public Pose2d getPos() {
+        return getState().Pose;
+    }
+
+    public Field2d getField() {
+//        getState().
+        return new Field2d();
+    }
+
+    public void addVisionMeasurement(Pose2d pos, double timestamp, Matrix<N3, N1> stdDevs) {
+        addVisionMeasurement(pos, timestamp, stdDevs);
     }
 }
