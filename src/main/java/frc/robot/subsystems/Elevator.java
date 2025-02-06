@@ -24,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -50,7 +51,7 @@ public class Elevator extends SubsystemBase {
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
             .withKP(0.5) //1
-            .withKI(0)
+            .withKI(0.5)
             .withKD(0)
             .withKG(0)
             .withKS(0)
@@ -61,7 +62,7 @@ public class Elevator extends SubsystemBase {
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(true)
             .withForwardSoftLimitThreshold(upperSoftLimit)
-            .withForwardSoftLimitEnable(true))
+            .withForwardSoftLimitEnable(false))
         .withFeedback(new FeedbackConfigs()
             .withSensorToMechanismRatio(gearRatio))
         .withMotionMagic(new MotionMagicConfigs()
@@ -85,11 +86,22 @@ public class Elevator extends SubsystemBase {
         elevatorMotor2.getConfigurator().apply(motorConfigs);
         elevatorMotor2.setControl(new Follower(elevatorMotor1ID, false));
 
-        atSetpoint = new Trigger(() -> Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.005);
+        atSetpoint = new Trigger(() -> Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.1);
 
         // if (Utils.isSimulation()) {
         //     elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
         // }
+    }
+
+    @Override
+    public void periodic() {
+        elevatorMotor2.setControl(new Follower(elevatorMotor1ID, false));
+
+        SmartDashboard.putNumber("elevator setpoint", setpoint);
+        SmartDashboard.putNumber("elevator1 pos", elevatorMotor1.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("elevator2 pos", elevatorMotor2.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("elevator1 output", elevatorMotor1.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("elevator2 output", elevatorMotor2.getMotorVoltage().getValueAsDouble());
     }
 
     @Override

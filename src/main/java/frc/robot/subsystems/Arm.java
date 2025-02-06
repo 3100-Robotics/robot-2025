@@ -25,6 +25,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -39,8 +40,8 @@ public class Arm extends SubsystemBase {
     private CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration().
         withMagnetSensor(new MagnetSensorConfigs()
             .withMagnetOffset(-0.004639)
-            .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-            .withAbsoluteSensorDiscontinuityPoint(0));
+            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+            .withAbsoluteSensorDiscontinuityPoint(1));
 
     private TalonFXConfiguration motorConfigs = new TalonFXConfiguration().
         withAudio(new AudioConfigs()
@@ -53,7 +54,7 @@ public class Arm extends SubsystemBase {
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(5) // 10
+            .withKP(10) // 10
             .withKI(0)
             .withKD(0)
             .withKG(0)
@@ -77,7 +78,7 @@ public class Arm extends SubsystemBase {
     private double setpoint;
     private final Trigger atSetpoint;
 
-    private SingleJointedArmSim armSim = new SingleJointedArmSim( 
+    private SingleJointedArmSim armSim = new SingleJointedArmSim(
         DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength,
         -Math.PI/2, Math.PI/2, true, 0);
 
@@ -86,11 +87,18 @@ public class Arm extends SubsystemBase {
 
         motorConfigs.withFeedback(new FeedbackConfigs()
             .withRemoteCANcoder(pivotEncoder)
-            .withRotorToSensorRatio(1)
+            .withRotorToSensorRatio(1/gearRatio)
             .withSensorToMechanismRatio(1));
         pivotMotor.getConfigurator().apply(motorConfigs);
 
         atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.005);
+        // pivotEncoder.setPosition(0);
+        // pivotMotor.setPosition(0);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("arm setpoint", setpoint);
     }
 
     @Override
