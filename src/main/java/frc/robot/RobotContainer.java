@@ -13,7 +13,6 @@ import choreo.auto.AutoTrajectory;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,8 +28,8 @@ import frc.robot.subsystems.Coral;
 import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -50,7 +49,7 @@ public class RobotContainer {
     public final Arm arm = new Arm();
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
-    public final Vision vision = new Vision(drivetrain::getPos, drivetrain.getField());
+    public final Vision vision = new Vision(drivetrain::getPos, null);
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
@@ -68,7 +67,8 @@ public class RobotContainer {
                 drivetrain // The drive subsystem
         );
 
-        configureBindings();
+//        configureBindings();
+        configureSysidBindings();
         configureAutonomous();
     }
 
@@ -214,6 +214,21 @@ public class RobotContainer {
         // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    private void configureSysidBindings() {
+
+        // elevator sysid
+        coDriverJoystick.a().whileTrue(elevator.sysidQuasistatic(Direction.kForward));
+        coDriverJoystick.b().whileTrue(elevator.sysidQuasistatic(Direction.kReverse));
+        coDriverJoystick.x().whileTrue(elevator.sysidDynamic(Direction.kForward));
+        coDriverJoystick.y().whileTrue(elevator.sysidDynamic(Direction.kReverse));
+
+        // arm sysid
+        coDriverJoystick.povUp().whileTrue(arm.sysidQuasistatic(Direction.kForward));
+        coDriverJoystick.povDown().whileTrue(arm.sysidQuasistatic(Direction.kReverse));
+        coDriverJoystick.povLeft().whileTrue(arm.sysidDynamic(Direction.kReverse));
+        coDriverJoystick.povRight().whileTrue(arm.sysidDynamic(Direction.kForward));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

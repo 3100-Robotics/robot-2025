@@ -72,18 +72,15 @@ public class Vision
      * Constructor for the Vision class.
      *
      */
-    public Vision(Supplier<Pose2d> currentPose, Field2d field)
-    {
+    public Vision(Supplier<Pose2d> currentPose, Field2d field) {
         this.currentPose = currentPose;
         this.field2d = field;
 
-        if (Robot.isSimulation())
-        {
+        if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("Vision");
             visionSim.addAprilTags(fieldLayout);
 
-            for (Cameras c : Cameras.values())
-            {
+            for (Cameras c : Cameras.values()) {
                 c.addToVisionSim(visionSim);
             }
 
@@ -99,14 +96,12 @@ public class Vision
      *                    itself correctly.
      * @return The target pose of the AprilTag.
      */
-    public static Pose2d getAprilTagPose(int aprilTag, Transform2d robotOffset)
-    {
+    public static Pose2d getAprilTagPose(int aprilTag, Transform2d robotOffset) {
         Optional<Pose3d> aprilTagPose3d = fieldLayout.getTagPose(aprilTag);
-        if (aprilTagPose3d.isPresent())
-        {
+        if (aprilTagPose3d.isPresent()) {
             return aprilTagPose3d.get().toPose2d().transformBy(robotOffset);
-        } else
-        {
+        }
+        else {
             throw new RuntimeException("Cannot get AprilTag " + aprilTag + " from field " + fieldLayout.toString());
         }
 
@@ -121,15 +116,14 @@ public class Vision
              * (This is why teams implement vision system to correct odometry.)
              * Therefore, we must ensure that the actual robot pose is provided in the simulator when updating the vision simulation during the simulation.
              */
-            visionSim.update(drive.getPos());
+            visionSim.update(currentPose.get());
         }
         for (Cameras camera : Cameras.values()) {
             Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
             if (poseEst.isPresent()) {
                 var pose = poseEst.get();
                 drive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-                        pose.timestampSeconds,
-                        camera.curStdDevs);
+                        pose.timestampSeconds);
             }
         }
 

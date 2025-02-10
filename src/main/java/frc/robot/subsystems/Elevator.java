@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 
 public class Elevator extends SubsystemBase {
@@ -72,6 +74,15 @@ public class Elevator extends SubsystemBase {
     private double setpoint;
     private final Trigger atSetpoint;
 
+    private final SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(
+            null,
+            Volts.of(7),
+            null,
+            state -> SignalLogger.writeString("SysIdSteer_State", state.toString())),
+            new SysIdRoutine.Mechanism(
+                    voltage -> elevatorMotor1.setVoltage(voltage.baseUnitMagnitude()),
+                    null,
+                    this));
 
     private final ElevatorSim elevatorSim = new ElevatorSim(   
         DCMotor.getKrakenX60(2),
@@ -103,7 +114,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // System.out.println(setpoint);
+        // System.out.println(setpoint);`
         var talonFXSim = elevatorMotor1.getSimState();
 
         // set the supply voltage of the TalonFX
@@ -123,6 +134,14 @@ public class Elevator extends SubsystemBase {
         System.out.println(elevatorSim.getPositionMeters());
         talonFXSim.setRawRotorPosition(elevatorSim.getPositionMeters()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
         talonFXSim.setRotorVelocity(elevatorSim.getVelocityMetersPerSecond()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
+    }
+
+    public Command sysidDynamic(SysIdRoutine.Direction direction) {
+        return sysid.dynamic(direction);
+    }
+
+    public Command sysidQuasistatic(SysIdRoutine.Direction direction) {
+        return sysid.quasistatic(direction);
     }
 
     public Command set(double speed) {

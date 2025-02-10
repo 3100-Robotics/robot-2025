@@ -15,6 +15,8 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+//    addPeriodic(m_robotContainer.vision::updateVisionField, 0.5);
+//    addPeriodic(() -> m_robotContainer.vision.updatePoseEstimation(m_robotContainer.drivetrain), 0.020);
   }
 
   @Override

@@ -290,13 +290,4 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     public Pose2d getPos() {
         return getState().Pose;
     }
-
-    public Field2d getField() {
-//        getState().
-        return new Field2d();
-    }
-
-    public void addVisionMeasurement(Pose2d pos, double timestamp, Matrix<N3, N1> stdDevs) {
-        addVisionMeasurement(pos, timestamp, stdDevs);
-    }
 }

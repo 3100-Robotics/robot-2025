@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class Arm extends SubsystemBase {
     private final int pivotMotorID = 16;
@@ -78,6 +80,16 @@ public class Arm extends SubsystemBase {
     private double setpoint;
     private final Trigger atSetpoint;
 
+    private final SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(
+            null,
+            Volts.of(7),
+            null,
+            state -> SignalLogger.writeString("SysIdSteer_State", state.toString())),
+            new SysIdRoutine.Mechanism(
+                    voltage -> pivotMotor.setVoltage(voltage.baseUnitMagnitude()),
+                    null,
+                    this));
+
     private SingleJointedArmSim armSim = new SingleJointedArmSim(
         DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength,
         -Math.PI/2, Math.PI/2, true, 0);
@@ -125,6 +137,14 @@ public class Arm extends SubsystemBase {
 
         talonFXSim.setRawRotorPosition(armSim.getAngleRads()*gearRatio/(2*Math.PI));
         talonFXSim.setRotorVelocity(armSim.getVelocityRadPerSec()*gearRatio/(2*Math.PI));
+    }
+
+    public Command sysidDynamic(SysIdRoutine.Direction direction) {
+        return sysid.dynamic(direction);
+    }
+
+    public Command sysidQuasistatic(SysIdRoutine.Direction direction) {
+        return sysid.quasistatic(direction);
     }
 
     public Command set(double speed) {
