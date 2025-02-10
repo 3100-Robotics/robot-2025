@@ -217,6 +217,8 @@ public class RobotContainer {
     }
 
     private void configureSysidBindings() {
+        coDriverJoystick.leftBumper().onTrue(arm.goToPos(0.25));
+        coDriverJoystick.rightBumper().onTrue(elevator.goToPos(0.75));
 
         // elevator sysid
         coDriverJoystick.a().whileTrue(elevator.sysidQuasistatic(Direction.kForward));
