@@ -10,6 +10,8 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -67,8 +69,8 @@ public class RobotContainer {
                 drivetrain // The drive subsystem
         );
 
-//        configureBindings();
-        configureSysidBindings();
+        configureBindings();
+        // configureSysidBindings();
         configureAutonomous();
     }
 
@@ -238,6 +240,12 @@ public class RobotContainer {
         driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    
+        driverJoystick.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+
+        driverJoystick.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    
+    
     }
 
     public Command getAutonomousCommand() {

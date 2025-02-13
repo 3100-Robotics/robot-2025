@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -56,14 +57,14 @@ public class Arm extends SubsystemBase {
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(10) // 10
+            .withKP(63.093) // 10
             .withKI(0)
-            .withKD(0)
-            .withKG(0)
+            .withKD(30.827)
+            .withKG(0.72337)
             .withKS(0)
-            .withKV(0)
-            .withKA(0)
-            .withGravityType(GravityTypeValue.Elevator_Static))
+            .withKV(7.181)
+            .withKA(9.4905)
+            .withGravityType(GravityTypeValue.Arm_Cosine))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(false)
@@ -82,9 +83,9 @@ public class Arm extends SubsystemBase {
 
     private final SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(
             null,
-            Volts.of(7),
+            Volts.of(1),
             null,
-            state -> SignalLogger.writeString("SysIdSteer_State", state.toString())),
+            state -> SignalLogger.writeString("arm sysid state", state.toString())),
             new SysIdRoutine.Mechanism(
                     voltage -> pivotMotor.setVoltage(voltage.baseUnitMagnitude()),
                     null,

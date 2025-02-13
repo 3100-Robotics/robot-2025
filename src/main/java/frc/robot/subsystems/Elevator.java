@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -49,13 +50,15 @@ public class Elevator extends SubsystemBase {
             .withInverted(InvertedValue.CounterClockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(0.5) //1
-            .withKI(0.5)
-            .withKD(0)
-            .withKG(0)
-            .withKS(0)
-            .withKV(0)
-            .withKA(0)
+            .withKP(20)
+            .withKG(0.35)
+            // .withKP(61.207) // 61.207
+            // .withKI(0)
+            // .withKD(13.152) // 13.152
+            // .withKG(0.59319) // 0.59319
+            // .withKS(0.019567) // 0.019567
+            // .withKV(7.2027) // 7.2027
+            // .withKA(1.2414) // 1.2414
             .withGravityType(GravityTypeValue.Elevator_Static))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
@@ -65,7 +68,7 @@ public class Elevator extends SubsystemBase {
         .withFeedback(new FeedbackConfigs()
             .withSensorToMechanismRatio(gearRatio))
         .withMotionMagic(new MotionMagicConfigs()
-            .withMotionMagicAcceleration(10));
+            .withMotionMagicCruiseVelocity(2));
 
 
     private TalonFX elevatorMotor1 = new TalonFX(elevatorMotor1ID);
@@ -75,8 +78,8 @@ public class Elevator extends SubsystemBase {
     private final Trigger atSetpoint;
 
     private final SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(
-            null,
-            Volts.of(7),
+            Volts.of(0.5).per(Second),
+            Volts.of(3),
             null,
             state -> SignalLogger.writeString("SysIdSteer_State", state.toString())),
             new SysIdRoutine.Mechanism(
