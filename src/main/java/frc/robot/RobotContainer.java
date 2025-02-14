@@ -84,18 +84,21 @@ public class RobotContainer {
 
     public Command collectAlgae(States collectingState, String side) {
         return Commands.sequence(
-                algae.set(-0.5),
+                algae.set(-1),
                 superstructure.goToPos(collectingState, side).until(algae.currentHit()),
                 Commands.waitUntil(algae.currentHit()),
-                algae.set(0),
-                superstructure.goToPos(States.resting, "neither"));
+                Commands.waitSeconds(0.3),
+                superstructure.goToPos(States.resting, "neither"),
+                algae.set(0));
     }
 
     public Command scoreAlgae(States scoringPos, String side) {
         return Commands.sequence(
                 superstructure.goToPos(scoringPos, side),
-                algae.set(0.5),
+                algae.set(-0.5),
                 Commands.waitSeconds(0.25),
+                algae.set(0.5),
+                Commands.waitSeconds(0.5),
                 algae.set(0),
                 superstructure.goToPos(States.resting, "neither"));
     }
@@ -156,6 +159,12 @@ public class RobotContainer {
         ///////////
         // ALGAE //
         ///////////
+
+        driverJoystick.x().onTrue(Commands.sequence(
+            algae.set(-1),
+            Commands.waitUntil(algae.currentHit()),
+            Commands.waitSeconds(0.25),
+            algae.set(0)));
 
         // collection
 

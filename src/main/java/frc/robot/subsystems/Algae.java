@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import com.revrobotics.spark.SparkMax;
@@ -11,22 +13,27 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-public class Algae implements Subsystem {
+public class Algae extends SubsystemBase {
     private final int motorID = 19;
 
     private SparkBaseConfig config = new SparkMaxConfig()
         .idleMode(IdleMode.kBrake)
-        .inverted(false)
-        .smartCurrentLimit(30, 40);
+        .inverted(true)
+        .smartCurrentLimit(60, 60);
 
     private SparkMax motor = new SparkMax(motorID, MotorType.kBrushless);
 
     private Trigger currentTrigger; 
-    private LinearFilter currentFilter = LinearFilter.movingAverage(20);
+    private LinearFilter currentFilter = LinearFilter.movingAverage(60);
     
     public Algae() {
         motor.configure(config, null, null);
-        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 20);
+        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 40);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("motor current", currentFilter.calculate(motor.getOutputCurrent()));
     }
 
     public Command set(double speed) {

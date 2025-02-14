@@ -47,23 +47,29 @@ public class Superstructure extends SubsystemBase {
     }
 
     private Command goTo(States state, String leftRight) { // TODO: make left/right function
-        if (currentState == States.resting || currentState == state) {
-            return Commands.sequence(
-                    runOnce(() -> currentState=state),
-                    Commands.parallel(
-                    elevator.goToPos(state.elevatorHeight),
-                    arm.goToPos(leftRight.equals("left") ? 0.5-state.armAngle : state.armAngle)));
+        Command command = Commands.none();
+        if (!(currentState == States.resting || currentState == state)) {
+            command.andThen(Commands.sequence(
+                Commands.runOnce(() -> currentState=state),
+                Commands.parallel(
+                    elevator.goToPos(States.resting.elevatorHeight),
+                    arm.goToPos(States.resting.armAngle))));
+        }
+        
+        if (state.equals(States.algaeToBardge)) {
+            command.andThen(Commands.sequence(
+                runOnce(() -> currentState=state),
+                elevator.goToPos(state.elevatorHeight),
+                arm.goToPos(leftRight.equals("left") ? 0.478-state.armAngle : state.armAngle)));
         }
         else {
-            return Commands.sequence(
-                    runOnce(() -> currentState=state),
-                    Commands.parallel(
-                            elevator.goToPos(States.resting.elevatorHeight),
-                            arm.goToPos(States.resting.armAngle)),
-                    Commands.parallel(
-                            elevator.goToPos(state.elevatorHeight),
-                            arm.goToPos(leftRight.equals("left") ? 0.5-state.armAngle : state.armAngle)));
+            command.andThen(Commands.sequence(
+                runOnce(() -> currentState=state),
+                Commands.parallel(
+                elevator.goToPos(state.elevatorHeight),
+                arm.goToPos(leftRight.equals("left") ? 0.478-state.armAngle : state.armAngle))));
         }
+        return command;
     }
 
     public Command goToPos(States desiredState, String side) {

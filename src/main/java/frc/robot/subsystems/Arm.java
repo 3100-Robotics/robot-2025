@@ -57,21 +57,24 @@ public class Arm extends SubsystemBase {
             .withInverted(InvertedValue.Clockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
-            .withKP(63.093) // 10
-            .withKI(0)
-            .withKD(30.827)
-            .withKG(0.72337)
-            .withKS(0)
-            .withKV(7.181)
-            .withKA(9.4905)
+            .withKP(30)
+            .withKG(0.42)
+            .withKD(0.2)
+            // .withKP(63.093) // 10
+            // .withKI(0)
+            // .withKD(30.827)
+            // .withKG(0.72337)
+            // .withKS(0)
+            // .withKV(7.181)
+            // .withKA(9.4905)
             .withGravityType(GravityTypeValue.Arm_Cosine))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
             .withReverseSoftLimitEnable(false)
             .withForwardSoftLimitThreshold(0)
             .withForwardSoftLimitEnable(false))
-        .withMotionMagic(new MotionMagicConfigs()
-            .withMotionMagicAcceleration(10));
+        .withMotionMagic(new MotionMagicConfigs());
+            // .withMotionMagicCruiseVelocity(6));
 
 
     private TalonFX pivotMotor = new TalonFX(pivotMotorID);

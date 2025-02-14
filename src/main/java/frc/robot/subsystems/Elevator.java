@@ -52,6 +52,7 @@ public class Elevator extends SubsystemBase {
         .withSlot0(new Slot0Configs()
             .withKP(20)
             .withKG(0.35)
+            .withKI(0.05)
             // .withKP(61.207) // 61.207
             // .withKI(0)
             // .withKD(13.152) // 13.152
