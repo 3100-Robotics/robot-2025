@@ -18,17 +18,17 @@ public class Algae extends SubsystemBase {
 
     private SparkBaseConfig config = new SparkMaxConfig()
         .idleMode(IdleMode.kBrake)
-        .inverted(true)
-        .smartCurrentLimit(60, 60);
+        .inverted(false)
+        .smartCurrentLimit(30, 60);
 
     private SparkMax motor = new SparkMax(motorID, MotorType.kBrushless);
 
     private Trigger currentTrigger; 
-    private LinearFilter currentFilter = LinearFilter.movingAverage(60);
+    private LinearFilter currentFilter = LinearFilter.movingAverage(40);
     
     public Algae() {
         motor.configure(config, null, null);
-        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 40);
+        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 20);
     }
 
     @Override

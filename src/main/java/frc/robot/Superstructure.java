@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -47,29 +49,35 @@ public class Superstructure extends SubsystemBase {
     }
 
     private Command goTo(States state, String leftRight) { // TODO: make left/right function
-        Command command = Commands.none();
-        if (!(currentState == States.resting || currentState == state)) {
-            command.andThen(Commands.sequence(
+        boolean yesGoToStatic = false;
+        Supplier<Command> goToStatic = () -> Commands.sequence(
                 Commands.runOnce(() -> currentState=state),
                 Commands.parallel(
                     elevator.goToPos(States.resting.elevatorHeight),
-                    arm.goToPos(States.resting.armAngle))));
+                    arm.goToPos(States.resting.armAngle)));
+
+        boolean yesGoToInline = false;
+        Supplier<Command> goToInline = () -> Commands.sequence(
+            runOnce(() -> currentState=state),
+            elevator.goToPos(state.elevatorHeight),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle));
+        
+        Supplier<Command> goTo = () -> Commands.sequence(
+            runOnce(() -> currentState=state),
+            Commands.parallel(
+            elevator.goToPos(state.elevatorHeight),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle)));
+
+        if (!(currentState == States.resting || currentState == state)) {
+            yesGoToStatic = true;
         }
         
         if (state.equals(States.algaeToBardge)) {
-            command.andThen(Commands.sequence(
-                runOnce(() -> currentState=state),
-                elevator.goToPos(state.elevatorHeight),
-                arm.goToPos(leftRight.equals("left") ? 0.478-state.armAngle : state.armAngle)));
+            yesGoToInline = true;
         }
-        else {
-            command.andThen(Commands.sequence(
-                runOnce(() -> currentState=state),
-                Commands.parallel(
-                elevator.goToPos(state.elevatorHeight),
-                arm.goToPos(leftRight.equals("left") ? 0.478-state.armAngle : state.armAngle))));
-        }
-        return command;
+        return Commands.sequence(
+            yesGoToStatic ? goToStatic.get() : Commands.none(),
+            yesGoToInline? goToInline.get() : goTo.get());
     }
 
     public Command goToPos(States desiredState, String side) {

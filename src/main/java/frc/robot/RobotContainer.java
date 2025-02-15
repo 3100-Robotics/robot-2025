@@ -56,7 +56,7 @@ public class RobotContainer {
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
 
-    private final AutoChooser autoSelector = new AutoChooser();
+    public final AutoChooser autoSelector = new AutoChooser();
 
     private final AutoFactory autoFactory;
 
@@ -87,7 +87,7 @@ public class RobotContainer {
                 algae.set(-1),
                 superstructure.goToPos(collectingState, side).until(algae.currentHit()),
                 Commands.waitUntil(algae.currentHit()),
-                Commands.waitSeconds(0.3),
+                Commands.waitSeconds(0.15),
                 superstructure.goToPos(States.resting, "neither"),
                 algae.set(0));
     }
@@ -96,7 +96,7 @@ public class RobotContainer {
         return Commands.sequence(
                 superstructure.goToPos(scoringPos, side),
                 algae.set(-0.5),
-                Commands.waitSeconds(0.25),
+                Commands.waitSeconds(0.1),
                 algae.set(0.5),
                 Commands.waitSeconds(0.5),
                 algae.set(0),
@@ -137,12 +137,18 @@ public class RobotContainer {
     }
 
     private void configureAutonomous() {
-        SmartDashboard.putData(autoSelector);
+        SmartDashboard.putData("slight bright green", autoSelector);
 
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
         autoSelector.addRoutine("score preload", this::scorePreload);
     }
+
+    // private Command leave2() {
+    //     drive.apply(drive.withVelocityX(0.1), null);
+
+    //     return Commands.none();
+    // }
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
