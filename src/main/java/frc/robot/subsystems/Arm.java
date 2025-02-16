@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -24,7 +25,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -96,7 +99,7 @@ public class Arm extends SubsystemBase {
 
     private SingleJointedArmSim armSim = new SingleJointedArmSim(
         DCMotor.getKrakenX60(1), gearRatio, 1.086414471, armLength,
-        -Math.PI/2, Math.PI/2, true, 0);
+        -3*Math.PI/2, 3*Math.PI/2, true, 0);
 
     public Arm() {
         pivotEncoder.getConfigurator().apply(encoderConfiguration);
@@ -110,6 +113,13 @@ public class Arm extends SubsystemBase {
         atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.005);
         // pivotEncoder.setPosition(0);
         // pivotMotor.setPosition(0);
+
+        if (Utils.isSimulation()) {
+//            pivotMotor.setPosition(0.25);
+//            pivotEncoder.setPosition(0.25);
+//            pivotEncoder.getSimState().setRawPosition(0.25);
+//            armSim.setState(Math.PI/2, 0);
+        }
     }
 
     @Override

@@ -45,13 +45,13 @@ public class RobotContainer {
     public final Drivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Climber climber = new Climber();
     public final Algae algae = new Algae();
-    public final Coral coral = new Coral();
+//    public final Coral coral = new Coral();
 
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
-    public final Vision vision = new Vision(drivetrain::getPos, null);
+    public final Vision vision = new Vision(drivetrain::getPos, drivetrain.getField());
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
@@ -74,13 +74,13 @@ public class RobotContainer {
         configureAutonomous();
     }
 
-    public Command scoreCoral(States scoringState) {
-        return Commands.sequence(
-                superstructure.goToPos(scoringState, "neither"),
-                coral.set(0.5),
-                Commands.waitSeconds(0.25),
-                superstructure.goToPos(States.resting, "neither"));
-    }
+//    public Command scoreCoral(States scoringState) {
+//        return Commands.sequence(
+//                superstructure.goToPos(scoringState, "neither"),
+//                coral.set(0.5),
+//                Commands.waitSeconds(0.25),
+//                superstructure.goToPos(States.resting, "neither"));
+//    }
 
     public Command collectAlgae(States collectingState, String side) {
         return Commands.sequence(
@@ -130,25 +130,66 @@ public class RobotContainer {
                         startToCoral1.cmd()));
 
         startToCoral1.done().onTrue(Commands.sequence(
-                scoreCoral(States.coralReefL4),
+//                scoreCoral(States.coralReefL4),
                 coral1ToEnd.cmd()));
 
         return routine;
     }
 
+    public AutoRoutine score1Algae() {
+        AutoRoutine routine = autoFactory.newRoutine("1 algae");
+
+        AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
+        AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
+
+        routine.active().onTrue(Commands.sequence(
+                startToAlgae1.resetOdometry(),
+                startToAlgae1.cmd()));
+
+        startToAlgae1.done().onTrue(Commands.sequence(
+                collectAlgae(States.algaeFromReefLow, "left"),
+                algae1ToScore.spawnCmd()));
+
+        algae1ToScore.done().onTrue(Commands.sequence(
+                scoreAlgae(States.algaeToBardge, "right")));
+
+        return routine;
+    }
+
+    public AutoRoutine score2Algae() {
+        AutoRoutine algae1 = score1Algae();
+
+        AutoRoutine routine = autoFactory.newRoutine("2 algae");
+
+        AutoTrajectory scoreToAlgae2 = routine.trajectory("score-algae2");
+        AutoTrajectory algae2ToScore = routine.trajectory("algae2-score");
+
+        routine.active().onTrue(Commands.sequence(
+            algae1.cmd(),
+            scoreToAlgae2.spawnCmd()));
+
+        // algae1.active().onFalse(Commands.sequence(
+        //         scoreToAlgae2.spawnCmd()));
+
+        scoreToAlgae2.done().onTrue(Commands.sequence(
+                collectAlgae(States.algaeFromReefHigh, "right"),
+                algae2ToScore.spawnCmd()));
+
+        algae2ToScore.done().onTrue(scoreAlgae(States.algaeToBardge, "right"));
+
+        return routine;
+    }
+
     private void configureAutonomous() {
-        SmartDashboard.putData("slight bright green", autoSelector);
+        SmartDashboard.putData("auto selector", autoSelector);
 
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
         autoSelector.addRoutine("score preload", this::scorePreload);
+        autoSelector.addRoutine("score 1 algae", this::score1Algae);
+        autoSelector.addRoutine("score 2 algae", this::score2Algae);
+        autoSelector.select("leave");
     }
-
-    // private Command leave2() {
-    //     drive.apply(drive.withVelocityX(0.1), null);
-
-    //     return Commands.none();
-    // }
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
@@ -206,26 +247,42 @@ public class RobotContainer {
         // right
         coDriverJoystick.leftBumper().and(driverJoystick.rightBumper()).onTrue(scoreAlgae(States.algaeToBardge, "right"));
 
+        coDriverJoystick.b().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
+            algae.set(-1),
+            superstructure.goToPos(States.algaeFromLollipop, "left").until(algae.currentHit()),
+            Commands.waitUntil(algae.currentHit()),
+            Commands.waitSeconds(0.15),
+            superstructure.goToPos(States.resting, "neither"),
+            algae.set(0)));
+
+        coDriverJoystick.b().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
+            algae.set(-1),
+            superstructure.goToPos(States.algaeFromLollipop, "right").until(algae.currentHit()),
+            Commands.waitUntil(algae.currentHit()),
+            Commands.waitSeconds(0.15),
+            superstructure.goToPos(States.resting, "neither"),
+            algae.set(0)));
+
         ///////////
         // CORAL //
         ///////////
 
         // collection
-        coDriverJoystick.povUp().onTrue(Commands.sequence(
-                superstructure.goToPos(States.coralHumanPlayer, "neither"),
-                coral.set(-0.5),
-                Commands.waitUntil(coral.currentHit()),
-                superstructure.goToPos(States.resting, "neither")));
+//        coDriverJoystick.povUp().onTrue(Commands.sequence(
+//                superstructure.goToPos(States.coralHumanPlayer, "neither"),
+//                coral.set(-0.5),
+//                Commands.waitUntil(coral.currentHit()),
+//                superstructure.goToPos(States.resting, "neither")));
 
         // scoring
         // l2
-        coDriverJoystick.povDown().onTrue(scoreCoral(States.coralReefL2));
+//        coDriverJoystick.povDown().onTrue(scoreCoral(States.coralReefL2));
 
         // l3
-        coDriverJoystick.povLeft().onTrue(scoreCoral(States.coralReefL3));
+//        coDriverJoystick.povLeft().onTrue(scoreCoral(States.coralReefL3));
 
         // l4
-        coDriverJoystick.povRight().onTrue(scoreCoral(States.coralReefL4));
+//        coDriverJoystick.povRight().onTrue(scoreCoral(States.coralReefL4));
 
         // reset the field-centric heading on left bumper press
         // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

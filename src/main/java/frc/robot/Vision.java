@@ -23,7 +23,6 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.Robot;
 import java.awt.Desktop;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class Vision
      * April Tag Field Layout of the year.
      */
     public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(
-            AprilTagFields.k2025Reefscape);
+            AprilTagFields.k2025ReefscapeWelded);
     /**
      * Photon Vision Simulation
      */
