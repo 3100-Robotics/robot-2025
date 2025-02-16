@@ -52,7 +52,7 @@ public class Elevator extends SubsystemBase {
         .withSlot0(new Slot0Configs()
             .withKP(20)
             .withKG(0.35)
-            .withKI(0.05)
+            .withKI(0.1)
             // .withKP(61.207) // 61.207
             // .withKI(0)
             // .withKD(13.152) // 13.152
@@ -135,7 +135,7 @@ public class Elevator extends SubsystemBase {
         // apply the new rotor position and velocity to the TalonFX;
         // note that this is rotor position/velocity (before gear ratio), but
         // DCMotorSim returns mechanism position/velocity (after gear ratio)
-        System.out.println(elevatorSim.getPositionMeters());
+//        System.out.println(elevatorSim.getPositionMeters());
         talonFXSim.setRawRotorPosition(elevatorSim.getPositionMeters()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
         talonFXSim.setRotorVelocity(elevatorSim.getVelocityMetersPerSecond()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
     }
