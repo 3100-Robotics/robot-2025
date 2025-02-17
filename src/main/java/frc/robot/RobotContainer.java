@@ -26,7 +26,6 @@ import frc.robot.subsystems.Algae;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Coral;
 import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
@@ -45,7 +44,6 @@ public class RobotContainer {
     public final Drivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Climber climber = new Climber();
     public final Algae algae = new Algae();
-//    public final Coral coral = new Coral();
 
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
@@ -73,14 +71,6 @@ public class RobotContainer {
         // configureSysidBindings();
         configureAutonomous();
     }
-
-//    public Command scoreCoral(States scoringState) {
-//        return Commands.sequence(
-//                superstructure.goToPos(scoringState, "neither"),
-//                coral.set(0.5),
-//                Commands.waitSeconds(0.25),
-//                superstructure.goToPos(States.resting, "neither"));
-//    }
 
     public Command collectAlgae(States collectingState, String side) {
         return Commands.sequence(
@@ -114,24 +104,6 @@ public class RobotContainer {
                         leaveTraj.cmd()
                 )
         );
-
-        return routine;
-    }
-
-    public AutoRoutine scorePreload() {
-        AutoRoutine routine = autoFactory.newRoutine("scorePreload");
-
-        AutoTrajectory startToCoral1 = routine.trajectory("start->coral1");
-        AutoTrajectory coral1ToEnd = routine.trajectory("coral1->end");
-
-        routine.active().onTrue(
-                Commands.sequence(
-                        startToCoral1.resetOdometry(),
-                        startToCoral1.cmd()));
-
-        startToCoral1.done().onTrue(Commands.sequence(
-//                scoreCoral(States.coralReefL4),
-                coral1ToEnd.cmd()));
 
         return routine;
     }
@@ -185,7 +157,6 @@ public class RobotContainer {
 
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
-        autoSelector.addRoutine("score preload", this::scorePreload);
         autoSelector.addRoutine("score 1 algae", this::score1Algae);
         autoSelector.addRoutine("score 2 algae", this::score2Algae);
         autoSelector.select("leave");
@@ -262,30 +233,6 @@ public class RobotContainer {
             Commands.waitSeconds(0.15),
             superstructure.goToPos(States.resting, "neither"),
             algae.set(0)));
-
-        ///////////
-        // CORAL //
-        ///////////
-
-        // collection
-//        coDriverJoystick.povUp().onTrue(Commands.sequence(
-//                superstructure.goToPos(States.coralHumanPlayer, "neither"),
-//                coral.set(-0.5),
-//                Commands.waitUntil(coral.currentHit()),
-//                superstructure.goToPos(States.resting, "neither")));
-
-        // scoring
-        // l2
-//        coDriverJoystick.povDown().onTrue(scoreCoral(States.coralReefL2));
-
-        // l3
-//        coDriverJoystick.povLeft().onTrue(scoreCoral(States.coralReefL3));
-
-        // l4
-//        coDriverJoystick.povRight().onTrue(scoreCoral(States.coralReefL4));
-
-        // reset the field-centric heading on left bumper press
-        // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
