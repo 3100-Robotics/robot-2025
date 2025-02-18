@@ -23,7 +23,6 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import java.awt.Desktop;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,16 +63,14 @@ public class Vision
      * Current pose from the pose estimator using wheel odometry.
      */
     private             Supplier<Pose2d>    currentPose;
-    private             Field2d             field2d;
 
 
     /**
      * Constructor for the Vision class.
      *
      */
-    public Vision(Supplier<Pose2d> currentPose, Field2d field) {
+    public Vision(Supplier<Pose2d> currentPose) {
         this.currentPose = currentPose;
-        this.field2d = field;
 
         if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("Vision");
@@ -82,8 +79,6 @@ public class Vision
             for (Cameras c : Cameras.values()) {
                 c.addToVisionSim(visionSim);
             }
-
-            openSimCameraViews();
         }
     }
 
@@ -121,8 +116,9 @@ public class Vision
             Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
             if (poseEst.isPresent()) {
                 var pose = poseEst.get();
-                drive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-                        pose.timestampSeconds);
+                drive.addVisionMeasurement(
+                    pose.estimatedPose.toPose2d(),
+                    pose.timestampSeconds);
             }
         }
 
@@ -163,8 +159,7 @@ public class Vision
      * @param id AprilTag ID
      * @return Distance
      */
-    public double getDistanceFromAprilTag(int id)
-    {
+    public double getDistanceFromAprilTag(int id) {
         Optional<Pose3d> tag = fieldLayout.getTagPose(id);
         return tag.map(pose3d -> PhotonUtils.getDistanceToPose(currentPose.get(), pose3d.toPose2d())).orElse(-1.0);
     }
@@ -176,17 +171,12 @@ public class Vision
      * @param camera Camera to check.
      * @return Tracked target.
      */
-    public PhotonTrackedTarget getTargetFromId(int id, Cameras camera)
-    {
+    public PhotonTrackedTarget getTargetFromId(int id, Cameras camera) {
         PhotonTrackedTarget target = null;
-        for (PhotonPipelineResult result : camera.resultsList)
-        {
-            if (result.hasTargets())
-            {
-                for (PhotonTrackedTarget i : result.getTargets())
-                {
-                    if (i.getFiducialId() == id)
-                    {
+        for (PhotonPipelineResult result : camera.resultsList) {
+            if (result.hasTargets()) {
+                for (PhotonTrackedTarget i : result.getTargets()) {
+                    if (i.getFiducialId() == id) {
                         return i;
                     }
                 }
@@ -201,60 +191,8 @@ public class Vision
      *
      * @return Vision Simulation
      */
-    public VisionSystemSim getVisionSim()
-    {
+    public VisionSystemSim getVisionSim() {
         return visionSim;
-    }
-
-    /**
-     * Open up the photon vision camera streams on the localhost, assumes running photon vision on localhost.
-     */
-    private void openSimCameraViews()
-    {
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
-        {
-//      try
-//      {
-//        Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
-//        Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
-//        Desktop.getDesktop().browse(new URI("http://localhost:1186/"));
-//      } catch (IOException | URISyntaxException e)
-//      {
-//        e.printStackTrace();
-//      }
-        }
-    }
-
-    /**
-     * Update the {@link Field2d} to include tracked targets/
-     */
-    public void updateVisionField()
-    {
-
-        List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
-        for (Cameras c : Cameras.values())
-        {
-            if (!c.resultsList.isEmpty())
-            {
-                PhotonPipelineResult latest = c.resultsList.get(0);
-                if (latest.hasTargets())
-                {
-                    targets.addAll(latest.targets);
-                }
-            }
-        }
-
-        List<Pose2d> poses = new ArrayList<>();
-        for (PhotonTrackedTarget target : targets)
-        {
-            if (fieldLayout.getTagPose(target.getFiducialId()).isPresent())
-            {
-                Pose2d targetPose = fieldLayout.getTagPose(target.getFiducialId()).get().toPose2d();
-                poses.add(targetPose);
-            }
-        }
-
-        field2d.getObject("tracked targets").setPoses(poses);
     }
 
     /**
@@ -263,16 +201,16 @@ public class Vision
     enum Cameras {
         // TODO: make sure camera names and positions are correct
         /**
-         * Left Camera
+         * top Camera
          */
-        topCam("top cam",
-                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)), // robot to camera rotation
-                new Translation3d(Units.inchesToMeters(12.056), // robot to camera translation
-                        Units.inchesToMeters(10.981),
-                        Units.inchesToMeters(8.44)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)), // std devs
+        // topCam("top cam",
+        //         new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)), // robot to camera rotation
+        //         new Translation3d(Units.inchesToMeters(12.056), // robot to camera translation
+        //                 Units.inchesToMeters(10.981),
+        //                 Units.inchesToMeters(8.44)),
+        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)), // std devs
         /**
-         * Right Camera
+         * bottom Camera
          */
         bottomCam("bottom cam",
                 new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)), // robot to camera rotation

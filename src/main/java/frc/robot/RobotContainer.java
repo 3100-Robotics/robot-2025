@@ -51,7 +51,7 @@ public class RobotContainer {
     public final Arm arm = new Arm();
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
-    public final Vision vision = new Vision(drivetrain::getPos, drivetrain.getField());
+    public final Vision vision = new Vision(drivetrain::getPos);
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
@@ -186,9 +186,9 @@ public class RobotContainer {
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
         autoSelector.addRoutine("score preload", this::scorePreload);
-        autoSelector.addRoutine("score 1 algae", this::score1Algae);
-        autoSelector.addRoutine("score 2 algae", this::score2Algae);
-        autoSelector.select("leave");
+        autoSelector.addRoutine("score algae 1", this::score1Algae);
+        autoSelector.addRoutine("score algae 1,2", this::score2Algae);
+        autoSelector.select("score algae 1,2");
     }
 
     private void configureBindings() {
