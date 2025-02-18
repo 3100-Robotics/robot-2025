@@ -184,6 +184,13 @@ public class RobotContainer {
             Commands.waitSeconds(0.25),
             algae.set(0)));
 
+        driverJoystick.a().onTrue(climber.goToPos(4.2));
+
+        driverJoystick.b().onTrue(climber.goToPos(0));
+
+        climber.setSpeed(coDriverJoystick::getLeftX).schedule();
+        // climber.setDefaultCommand(Commands.print("command running"));
+
         // collection
 
         // floor

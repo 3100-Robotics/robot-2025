@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -156,7 +157,7 @@ public class Elevator extends SubsystemBase {
         return this.run(() -> {
             double rotations = pos / (Math.PI * 2 * sprocketRadius * carriageRatio);
             setpoint = rotations;
-            elevatorMotor1.setControl(new MotionMagicExpoVoltage(rotations));})
+            elevatorMotor1.setControl(new MotionMagicVoltage(rotations));})
             .until(atSetpoint);
     }
 
