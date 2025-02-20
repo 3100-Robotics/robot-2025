@@ -18,7 +18,7 @@ import au.grapplerobotics.interfaces.LaserCanInterface.RangingMode;
 
 public class Algae extends SubsystemBase {
     private final int motorID = 19;
-    private final int laserCanID = 28;
+    private final int laserCanID = 18;
 
     private SparkBaseConfig config = new SparkMaxConfig()
         .idleMode(IdleMode.kBrake)
@@ -44,7 +44,13 @@ public class Algae extends SubsystemBase {
             System.out.println("laser can range setting failed");
         }
 
-        distanceTrigger = new Trigger(() -> laserCan.getMeasurement().distance_mm < 40);
+        distanceTrigger = new Trigger(() -> {
+            double distance = laserCan.getMeasurement().distance_mm;
+            if (distance == 0) {
+                return false;
+            }
+            return distance <= 60;
+        });
     }
 
     @Override
@@ -57,6 +63,6 @@ public class Algae extends SubsystemBase {
     }
 
     public Trigger currentHit() {
-        return currentTrigger;
+        return distanceTrigger.and(currentTrigger);
     }
 }

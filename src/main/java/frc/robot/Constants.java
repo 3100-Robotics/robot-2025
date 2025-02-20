@@ -8,7 +8,7 @@ public class Constants {
         algaeFromReefHigh(0.14, 0.5), // has left/right
         algaeToBardge(0.15, 1.45), // has left/right 0.1674722
         algaeToProcessor(0.000, 0.19), // has left/right
-        resting(0.25, 0.01);
+        resting(0.25, 0.015);
 
         public double armAngle;
         public double elevatorHeight;

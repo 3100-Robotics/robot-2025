@@ -15,6 +15,11 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import au.grapplerobotics.CanBridge;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,7 +31,6 @@ import frc.robot.subsystems.Algae;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Coral;
 import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
@@ -51,7 +55,11 @@ public class RobotContainer {
     public final Arm arm = new Arm();
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
-    public final Vision vision = new Vision(drivetrain::getPos);
+    public final Vision vision = new Vision("Down", new Transform3d(new Translation3d(
+        Units.inchesToMeters(9.25),
+        Units.inchesToMeters(10.401),
+        Units.inchesToMeters(11.25)),
+        new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30))));
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
@@ -69,27 +77,21 @@ public class RobotContainer {
                 drivetrain // The drive subsystem
         );
 
+        CanBridge.runTCP();
+
         configureBindings();
         // configureSysidBindings();
         configureAutonomous();
     }
-
-//    public Command scoreCoral(States scoringState) {
-//        return Commands.sequence(
-//                superstructure.goToPos(scoringState, "neither"),
-//                coral.set(0.5),
-//                Commands.waitSeconds(0.25),
-//                superstructure.goToPos(States.resting, "neither"));
-//    }
 
     public Command collectAlgae(States collectingState, String side) {
         return Commands.sequence(
                 algae.set(-1),
                 superstructure.goToPos(collectingState, side).until(algae.currentHit()),
                 Commands.waitUntil(algae.currentHit()),
-                Commands.waitSeconds(0.15),
-                superstructure.goToPos(States.resting, "neither"),
-                algae.set(0));
+                // Commands.waitSeconds(0.15),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither"));
     }
 
     public Command scoreAlgae(States scoringPos, String side) {
@@ -114,24 +116,6 @@ public class RobotContainer {
                         leaveTraj.cmd()
                 )
         );
-
-        return routine;
-    }
-
-    public AutoRoutine scorePreload() {
-        AutoRoutine routine = autoFactory.newRoutine("scorePreload");
-
-        AutoTrajectory startToCoral1 = routine.trajectory("start->coral1");
-        AutoTrajectory coral1ToEnd = routine.trajectory("coral1->end");
-
-        routine.active().onTrue(
-                Commands.sequence(
-                        startToCoral1.resetOdometry(),
-                        startToCoral1.cmd()));
-
-        startToCoral1.done().onTrue(Commands.sequence(
-//                scoreCoral(States.coralReefL4),
-                coral1ToEnd.cmd()));
 
         return routine;
     }
@@ -185,7 +169,6 @@ public class RobotContainer {
 
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
-        autoSelector.addRoutine("score preload", this::scorePreload);
         autoSelector.addRoutine("score algae 1", this::score1Algae);
         autoSelector.addRoutine("score algae 1,2", this::score2Algae);
         autoSelector.select("score algae 1,2");
@@ -202,6 +185,8 @@ public class RobotContainer {
                     .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+
+        climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 
         ///////////
         // ALGAE //

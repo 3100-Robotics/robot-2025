@@ -70,7 +70,8 @@ public class Elevator extends SubsystemBase {
         .withFeedback(new FeedbackConfigs()
             .withSensorToMechanismRatio(gearRatio))
         .withMotionMagic(new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(2));
+            .withMotionMagicCruiseVelocity(9)
+            .withMotionMagicAcceleration(8));
 
 
     private TalonFX elevatorMotor1 = new TalonFX(elevatorMotor1ID);
@@ -157,7 +158,9 @@ public class Elevator extends SubsystemBase {
         return this.run(() -> {
             double rotations = pos / (Math.PI * 2 * sprocketRadius * carriageRatio);
             setpoint = rotations;
-            elevatorMotor1.setControl(new MotionMagicVoltage(rotations));})
+            elevatorMotor1.setControl(new MotionMagicVoltage(rotations));
+            // elevatorMotor1.setControl(new MotionMagicExpoVoltage(rotations));
+        })
             .until(atSetpoint);
     }
 

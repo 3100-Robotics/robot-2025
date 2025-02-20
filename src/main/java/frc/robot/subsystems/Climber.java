@@ -2,8 +2,10 @@ package frc.robot.subsystems;
 
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.function.DoubleSupplier;
 
@@ -13,7 +15,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-public class Climber implements Subsystem {
+public class Climber extends SubsystemBase {
     private final int motorID = 20;
 
     private SparkBaseConfig config = new SparkMaxConfig()
@@ -25,11 +27,16 @@ public class Climber implements Subsystem {
 
     private PIDController angleController = new PIDController(0.3, 0, 0);
 
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("climber torque", winch.getOutputCurrent());
+    }
+
     public Climber () {
         winch.configure(config, null, null);
     }
     public Command setSpeed(DoubleSupplier speed) {
-        return run(() -> winch.set(speed.getAsDouble()*0.3));
+        return run(() -> winch.set(speed.getAsDouble()));
 
     }
 

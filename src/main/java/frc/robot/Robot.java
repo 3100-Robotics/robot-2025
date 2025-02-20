@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -15,7 +19,13 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
-   addPeriodic(() -> m_robotContainer.vision.updatePoseEstimation(m_robotContainer.drivetrain), 0.020);
+   addPeriodic(() -> {
+    Optional<EstimatedRobotPose> pose = m_robotContainer.vision.getEstimatedGlobalPose();
+    if (pose.isPresent()) {
+      m_robotContainer.drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
+    }
+    }, 0.020);
+    
   }
 
   @Override
