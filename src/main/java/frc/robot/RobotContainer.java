@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.States;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Algae;
+import frc.robot.subsystems.AppendageFoam;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
@@ -49,7 +50,8 @@ public class RobotContainer {
     public final Drivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Climber climber = new Climber();
     public final Algae algae = new Algae();
-//    public final Coral coral = new Coral();
+
+    public final AppendageFoam appendage_foam = new AppendageFoam();
 
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
@@ -95,14 +97,20 @@ public class RobotContainer {
     }
 
     public Command scoreAlgae(States scoringPos, String side) {
-        return Commands.sequence(
-                superstructure.goToPos(scoringPos, side),
-                algae.set(-0.5),
-                Commands.waitSeconds(0.1),
-                algae.set(0.5),
-                Commands.waitSeconds(0.5),
-                algae.set(0),
-                superstructure.goToPos(States.resting, "neither"));
+        return Commands.parallel(
+                    Commands.sequence(
+                        superstructure.goToPos(scoringPos, side),
+                        algae.set(-0.5),
+                        Commands.waitSeconds(0.1),
+                        algae.set(0.5),
+                        Commands.waitSeconds(0.5),
+                        algae.set(0),
+                        superstructure.goToPos(States.resting, "neither"),
+                        appendage_foam.setAngle(0)
+                    ),
+
+                    appendage_foam.setAngle(90)
+            );
     }
 
     public AutoRoutine leave() {
