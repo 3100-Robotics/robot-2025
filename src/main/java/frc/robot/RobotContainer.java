@@ -97,8 +97,8 @@ public class RobotContainer {
     }
 
     public Command scoreAlgae(States scoringPos, String side) {
-        return Commands.parallel(
-                    Commands.sequence(
+        return Commands.sequence(
+            appendage_foam.setAngle(90),
                         superstructure.goToPos(scoringPos, side),
                         algae.set(-0.5),
                         Commands.waitSeconds(0.1),
@@ -107,10 +107,7 @@ public class RobotContainer {
                         algae.set(0),
                         superstructure.goToPos(States.resting, "neither"),
                         appendage_foam.setAngle(0)
-                    ),
-
-                    appendage_foam.setAngle(90)
-            );
+                    );
     }
 
     public AutoRoutine leave() {
