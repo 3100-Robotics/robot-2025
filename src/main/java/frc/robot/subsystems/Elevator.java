@@ -102,6 +102,7 @@ public class Elevator extends SubsystemBase {
 
         atSetpoint = new Trigger(() -> Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.1);
 
+        // elevatorMotor1.setPosition(0);
         // if (Utils.isSimulation()) {
         //     elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
         // }

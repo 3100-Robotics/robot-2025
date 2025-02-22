@@ -136,6 +136,7 @@ public class RobotContainer {
 
         startToAlgae1.done().onTrue(Commands.sequence(
                 collectAlgae(States.algaeFromReefLow, "right"),
+                algae1ToScore.resetOdometry(),
                 algae1ToScore.spawnCmd()));
 
         algae1ToScore.done().onTrue(Commands.sequence(
@@ -145,25 +146,37 @@ public class RobotContainer {
     }
 
     public AutoRoutine score2Algae() {
-        AutoRoutine algae1 = score1Algae();
-
         AutoRoutine routine = autoFactory.newRoutine("2 algae");
-
+        AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
+        AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
         AutoTrajectory scoreToAlgae2 = routine.trajectory("score-algae2");
         AutoTrajectory algae2ToScore = routine.trajectory("algae2-score");
 
         routine.active().onTrue(Commands.sequence(
-            algae1.cmd(),
-            scoreToAlgae2.spawnCmd()));
+                startToAlgae1.resetOdometry(),
+                startToAlgae1.cmd()));
+
+        startToAlgae1.done().onTrue(Commands.sequence(
+                collectAlgae(States.algaeFromReefLow, "right"),
+                algae1ToScore.resetOdometry(),
+                algae1ToScore.spawnCmd()));
+
+        algae1ToScore.done().onTrue(Commands.sequence(
+                scoreAlgae(States.algaeToBardge, "left"),
+                scoreToAlgae2.cmd()));
+
+        scoreToAlgae2.done().onTrue(Commands.sequence(
+            Commands.print("algae 1 done"),
+            collectAlgae(States.algaeFromReefHigh, "right")));
 
         // algae1.active().onFalse(Commands.sequence(
         //         scoreToAlgae2.spawnCmd()));
 
-        scoreToAlgae2.done().onTrue(Commands.sequence(
-                collectAlgae(States.algaeFromReefHigh, "right"),
-                algae2ToScore.spawnCmd()));
+        // algae2ToScore.done().onTrue(Commands.sequence(
+        
+        //         algae2ToScore.spawnCmd()));
 
-        algae2ToScore.done().onTrue(scoreAlgae(States.algaeToBardge, "right"));
+        // algae2ToScore.done().onTrue(scoreAlgae(States.algaeToBardge, "right"));
 
         return routine;
     }
