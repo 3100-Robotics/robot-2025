@@ -78,9 +78,10 @@ public class Vision {
      * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
      *     used for estimation.
      */
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d Robotpose) {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         if (!results.isEmpty()) {
+            // if (results.get()
             var visionEst = photonEstimator.update(results.get(0));
             double latestTimestamp = results.get(0).getTimestampSeconds();
             boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;

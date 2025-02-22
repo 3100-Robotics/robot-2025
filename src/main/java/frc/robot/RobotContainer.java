@@ -58,10 +58,10 @@ public class RobotContainer {
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
     public final Vision vision = new Vision("Down", new Transform3d(new Translation3d(
-        Units.inchesToMeters(9.25),
-        Units.inchesToMeters(10.401),
+        Units.inchesToMeters(-9.25),
+        Units.inchesToMeters(-10.401),
         Units.inchesToMeters(11.25)),
-        new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30))));
+        new Rotation3d(0, Math.toRadians(0), Math.toRadians(-90))));
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
@@ -99,15 +99,14 @@ public class RobotContainer {
     public Command scoreAlgae(States scoringPos, String side) {
         return Commands.sequence(
             appendage_foam.setAngle(90),
-                        superstructure.goToPos(scoringPos, side),
-                        algae.set(-0.5),
-                        Commands.waitSeconds(0.1),
-                        algae.set(0.5),
-                        Commands.waitSeconds(0.5),
-                        algae.set(0),
-                        superstructure.goToPos(States.resting, "neither"),
-                        appendage_foam.setAngle(0)
-                    );
+            superstructure.goToPos(scoringPos, side),
+            algae.set(-0.5),
+            Commands.waitSeconds(0.1),
+            algae.set(0.5),
+            Commands.waitSeconds(0.5),
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"),
+            appendage_foam.setAngle(0));
     }
 
     public AutoRoutine leave() {
@@ -136,11 +135,11 @@ public class RobotContainer {
                 startToAlgae1.cmd()));
 
         startToAlgae1.done().onTrue(Commands.sequence(
-                collectAlgae(States.algaeFromReefLow, "left"),
+                collectAlgae(States.algaeFromReefLow, "right"),
                 algae1ToScore.spawnCmd()));
 
         algae1ToScore.done().onTrue(Commands.sequence(
-                scoreAlgae(States.algaeToBardge, "right")));
+                scoreAlgae(States.algaeToBardge, "left")));
 
         return routine;
     }

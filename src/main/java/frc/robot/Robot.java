@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     m_robotContainer = new RobotContainer();
    addPeriodic(() -> {
-    Optional<EstimatedRobotPose> pose = m_robotContainer.vision.getEstimatedGlobalPose();
+    Optional<EstimatedRobotPose> pose = m_robotContainer.vision.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
     if (pose.isPresent()) {
       m_robotContainer.drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
     }

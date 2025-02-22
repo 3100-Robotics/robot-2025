@@ -111,9 +111,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
-    private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+    private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
+    private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
