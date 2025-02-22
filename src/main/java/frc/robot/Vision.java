@@ -67,9 +67,9 @@ public class Vision {
         }
     }
 
-    public PhotonPipelineResult getLatestResult() {
-        return camera.getLatestResult();
-    }
+//    public PhotonPipelineResult getLatestResult() {
+//        return camera.getLatestResult();
+//    }
 
     /**
      * The latest estimated robot pose on the field from vision data. This may be empty. This should
@@ -82,7 +82,7 @@ public class Vision {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         if (!results.isEmpty()) {
             var visionEst = photonEstimator.update(results.get(0));
-            double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
+            double latestTimestamp = results.get(0).getTimestampSeconds();
             boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
             // if (Robot.isSimulation()) {
             //     visionEst.ifPresentOrElse(
