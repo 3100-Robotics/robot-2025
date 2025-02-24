@@ -67,9 +67,13 @@ public class Vision {
         }
     }
 
-//    public PhotonPipelineResult getLatestResult() {
-//        return camera.getLatestResult();
-//    }
+   public Optional<PhotonPipelineResult> getLatestResult() {
+        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+        if (!results.isEmpty()) {
+            return Optional.of(results.get(0));
+        }
+        return Optional.empty();
+   }
 
     /**
      * The latest estimated robot pose on the field from vision data. This may be empty. This should

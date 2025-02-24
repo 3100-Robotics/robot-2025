@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import java.util.Optional;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -45,11 +47,12 @@ public class Algae extends SubsystemBase {
         }
 
         distanceTrigger = new Trigger(() -> {
-            double distance = laserCan.getMeasurement().distance_mm;
-            if (distance == 0) {
-                return false;
+            Optional<Integer> distance = Optional.ofNullable((Integer) laserCan.getMeasurement().distance_mm);
+            
+            if (distance.isPresent()) {
+                return distance.get()==0 ? false : distance.get() <= 60;
             }
-            return distance <= 60;
+            return false;
         });
     }
 

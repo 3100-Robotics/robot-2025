@@ -2,7 +2,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.SignalLogger;
@@ -24,8 +27,8 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -115,6 +118,11 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
+    private final PIDController odometryAllign = new PIDController(3, 0, 0);
+    private final PIDController gamePieceAllign = new PIDController(1, 0, 0);
+    private final SwerveRequest.ApplyFieldSpeeds alignRequest = new SwerveRequest.ApplyFieldSpeeds();
+    private final SwerveRequest.RobotCentric collectRequest = new SwerveRequest.RobotCentric();
+
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>
@@ -134,6 +142,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+        odometryAllign.setTolerance(0.1);
     }
 
     /**
@@ -246,6 +256,33 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.dynamic(direction);
+    }
+
+    public Command allignToBarge() {
+        return runOnce(() -> {
+                    Optional<Alliance> alliance = DriverStation.getAlliance();
+                    odometryAllign.setSetpoint(alliance.isPresent() ? (alliance.get().equals(Alliance.Red) ? 7.6 : 10) : 0);
+                    odometryAllign.calculate(getPos().getX());})
+                .andThen(run(() -> {
+                    setControl(alignRequest.withSpeeds(new ChassisSpeeds(odometryAllign.calculate(getPos().getX()), 0,0)));
+                })).until(odometryAllign::atSetpoint);
+    }
+
+    public Command driveToGamePiece(Supplier<Optional<PhotonPipelineResult>> visionData, Trigger runUntil) {
+        return run(() -> {
+            Optional<PhotonPipelineResult> results = visionData.get();
+            if (results.isPresent()) {
+                double speed = gamePieceAllign.calculate(results.get().getBestTarget().getYaw());
+                setControl(collectRequest
+                    .withVelocityX(1)
+                    .withVelocityY(Math.min(speed, 0.5)));
+            }
+            else {
+                setControl(collectRequest
+                    .withVelocityX(0)
+                    .withVelocityY(0));;
+            }
+        }).until(runUntil);
     }
 
     @Override
