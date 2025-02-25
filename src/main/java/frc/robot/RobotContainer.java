@@ -206,7 +206,9 @@ public class RobotContainer {
         );
 
         driverJoystick.y().whileTrue(drivetrain.allignToBarge());
-        driverJoystick.x().whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult));
+        driverJoystick.x().whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.currentHit()));
+        driverJoystick.a().onTrue(climber.goToPos(0));
+        driverJoystick.b().onTrue(climber.goToPos(3));
 
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 

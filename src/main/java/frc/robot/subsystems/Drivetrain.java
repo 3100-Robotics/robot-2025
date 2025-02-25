@@ -280,7 +280,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
             else {
                 setControl(collectRequest
                     .withVelocityX(0)
-                    .withVelocityY(0));;
+                    .withVelocityY(0));
             }
         }).until(runUntil);
     }
