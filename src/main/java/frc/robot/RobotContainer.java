@@ -57,11 +57,13 @@ public class RobotContainer {
     public final Arm arm = new Arm();
     public final Superstructure superstructure = new Superstructure(elevator, arm);
 
-    public final Vision vision = new Vision("Down", new Transform3d(new Translation3d(
+    public final Vision downCamera = new Vision("Down", new Transform3d(new Translation3d(
         Units.inchesToMeters(-9.25),
         Units.inchesToMeters(-10.401),
         Units.inchesToMeters(11.25)),
         new Rotation3d(0, Math.toRadians(0), Math.toRadians(-90))));
+
+    public final Vision gamePieceCamera = new Vision("game piece", new Transform3d());
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
@@ -227,6 +229,11 @@ public class RobotContainer {
             )
         );
 
+        driverJoystick.y().whileTrue(drivetrain.allignToBarge());
+        driverJoystick.x().whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.currentHit()));
+        driverJoystick.a().onTrue(climber.goToPos(0));
+        driverJoystick.b().onTrue(climber.goToPos(3));
+
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 
         driverJoystick.a().onTrue(superstructure.goToPos(States.algaeFromLollipop, "right"));
@@ -235,7 +242,7 @@ public class RobotContainer {
         // ALGAE //
         ///////////
 
-        driverJoystick.x().onTrue(Commands.sequence(
+        driverJoystick.povUp().onTrue(Commands.sequence(
             algae.set(-1),
             Commands.waitUntil(algae.currentHit()),
             Commands.waitSeconds(0.25),
