@@ -21,10 +21,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -79,6 +81,9 @@ public class Elevator extends SubsystemBase {
     
     private double setpoint;
     private final Trigger atSetpoint;
+    private final Trigger atZero;
+
+    private DigitalInput bottomLimit = new DigitalInput(1);
 
     private final SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(
             Volts.of(0.5).per(Second),
@@ -102,6 +107,10 @@ public class Elevator extends SubsystemBase {
 
         atSetpoint = new Trigger(() -> Math.abs(elevatorMotor1.getPosition().getValueAsDouble() - setpoint) < 0.1);
 
+        atZero = new Trigger(() -> !bottomLimit.get());
+        atZero.onTrue(Commands.runOnce(() -> {
+            elevatorMotor1.setPosition(0);
+            elevatorMotor2.setPosition(0);}));
         // elevatorMotor1.setPosition(0);
         // if (Utils.isSimulation()) {
         //     elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
@@ -117,6 +126,7 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putNumber("elevator2 pos", elevatorMotor2.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("elevator1 output", elevatorMotor1.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("elevator2 output", elevatorMotor2.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putBoolean("elevator limit", atZero.getAsBoolean());
     }
 
     @Override
