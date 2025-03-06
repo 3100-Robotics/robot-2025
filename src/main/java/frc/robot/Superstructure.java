@@ -72,7 +72,7 @@ public class Superstructure extends SubsystemBase {
             yesGoToStatic = true;
         }
         
-        if (state.equals(States.algaeToBardge) || state.equals(States.algaeFromReefHigh)) {
+        if (state.equals(States.algaeToBardge) || state.equals(States.algaeFromReefHigh) || state.equals(States.algaeFromGround)) {
             yesGoToInline = true;
         }
         return Commands.sequence(

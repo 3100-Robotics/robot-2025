@@ -183,6 +183,29 @@ public class RobotContainer {
         return routine;
     }
 
+    public AutoRoutine scoreAlgae1Leave() {
+        AutoRoutine routine = autoFactory.newRoutine("1 algae");
+
+        AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
+        AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
+        AutoTrajectory scoreToSafe = routine.trajectory("score-safe");
+
+        routine.active().onTrue(Commands.sequence(
+                startToAlgae1.resetOdometry(),
+                startToAlgae1.cmd()));
+
+        startToAlgae1.done().onTrue(Commands.sequence(
+                collectAlgae(States.algaeFromReefLow, "right"),
+                algae1ToScore.resetOdometry(),
+                algae1ToScore.spawnCmd()));
+
+        algae1ToScore.done().onTrue(Commands.sequence(
+                scoreAlgae(States.algaeToBardge, "left"),
+                scoreToSafe.cmd()));
+
+        return routine;
+    }
+
     private void configureAutonomous() {
         SmartDashboard.putData("auto selector", autoSelector);
 
@@ -191,6 +214,7 @@ public class RobotContainer {
         autoSelector.addRoutine("score algae 1", this::score1Algae);
         autoSelector.addRoutine("score algae 1,2", this::score2Algae);
         autoSelector.select("score algae 1,2");
+        autoSelector.addRoutine("score algae 1, safe", this::scoreAlgae1Leave);
     }
 
     private void configureBindings() {
@@ -214,6 +238,8 @@ public class RobotContainer {
         driverJoystick.b().onTrue(climber.goToPos(3));
 
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
+
+        driverJoystick.a().onTrue(superstructure.goToPos(States.algaeFromLollipop, "right"));
 
         ///////////
         // ALGAE //

@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,15 +30,19 @@ public class Algae extends SubsystemBase {
 
     private SparkMax motor = new SparkMax(motorID, MotorType.kBrushless);
 
+    private DigitalInput limitSwitch = new DigitalInput(0);
+
     private LaserCan laserCan = new LaserCan(laserCanID);
 
     private Trigger currentTrigger; 
     private Trigger distanceTrigger;
+    private Trigger limitTrigger;
     private LinearFilter currentFilter = LinearFilter.movingAverage(40);
     
     public Algae() {
         motor.configure(config, null, null);
-        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 20);
+        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 10);
+        limitTrigger = new Trigger(() -> !limitSwitch.get());
 
         try {
             laserCan.setRangingMode(RangingMode.SHORT);
@@ -63,6 +68,7 @@ public class Algae extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("motor current", currentFilter.calculate(motor.getOutputCurrent()));
+        SmartDashboard.putBoolean("limit switch", limitTrigger.getAsBoolean());
     }
 
     public Command set(double speed) {
@@ -70,6 +76,7 @@ public class Algae extends SubsystemBase {
     }
 
     public Trigger currentHit() {
-        return distanceTrigger.and(currentTrigger);
+        // return distanceTrigger.and(currentTrigger);
+        return limitTrigger;
     }
 }
