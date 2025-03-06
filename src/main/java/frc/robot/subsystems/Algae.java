@@ -47,7 +47,11 @@ public class Algae extends SubsystemBase {
         }
 
         distanceTrigger = new Trigger(() -> {
-            Optional<Integer> distance = Optional.ofNullable((Integer) laserCan.getMeasurement().distance_mm);
+            Optional<Integer> distance = Optional.empty();
+            try {
+                distance = Optional.ofNullable((Integer) laserCan.getMeasurement().distance_mm);
+            }
+            catch (Exception e) {}
             
             if (distance.isPresent()) {
                 return distance.get()==0 ? false : distance.get() <= 60;

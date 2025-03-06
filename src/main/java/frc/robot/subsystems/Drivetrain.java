@@ -268,14 +268,14 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                 })).until(odometryAllign::atSetpoint);
     }
 
-    public Command driveToGamePiece(Supplier<Optional<PhotonPipelineResult>> visionData, Trigger runUntil) {
+    public Command driveToGamePiece(Supplier<Optional<PhotonPipelineResult>> visionData, Trigger runUntil, String side) {
         return run(() -> {
             Optional<PhotonPipelineResult> results = visionData.get();
             if (results.isPresent()) {
                 double speed = gamePieceAllign.calculate(results.get().getBestTarget().getYaw());
                 setControl(collectRequest
-                    .withVelocityX(1)
-                    .withVelocityY(Math.min(speed, 0.5)));
+                    .withVelocityX(Math.min(speed, 0.5))
+                    .withVelocityY(1*(side == "left" ? 1 : -1)));
             }
             else {
                 setControl(collectRequest
