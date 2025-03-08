@@ -1,10 +1,10 @@
 package frc.robot.subsystems;
 
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.function.DoubleSupplier;
@@ -36,7 +36,7 @@ public class Climber extends SubsystemBase {
         winch.configure(config, null, null);
     }
     public Command setSpeed(DoubleSupplier speed) {
-        return run(() -> winch.set(speed.getAsDouble()));
+        return run(() -> winch.set(MathUtil.applyDeadband(speed.getAsDouble(), 0.07)));
 
     }
 

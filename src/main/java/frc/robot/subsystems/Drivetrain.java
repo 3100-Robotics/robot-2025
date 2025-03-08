@@ -261,7 +261,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     public Command allignToBarge() {
         return runOnce(() -> {
                     Optional<Alliance> alliance = DriverStation.getAlliance();
-                    odometryAllign.setSetpoint(alliance.isPresent() ? (alliance.get().equals(Alliance.Red) ? 7.6 : 10) : 0);
+                    odometryAllign.setSetpoint(alliance.isPresent() ? (alliance.get().equals(Alliance.Blue) ? 7.6 : 9.8) : 0);
                     odometryAllign.calculate(getPos().getX());})
                 .andThen(run(() -> {
                     setControl(alignRequest.withSpeeds(new ChassisSpeeds(odometryAllign.calculate(getPos().getX()), 0,0)));

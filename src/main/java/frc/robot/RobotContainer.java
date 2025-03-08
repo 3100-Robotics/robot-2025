@@ -147,7 +147,7 @@ public class RobotContainer {
         return routine;
     }
 
-    public AutoRoutine score2Algae() {
+    public AutoRoutine score15Algae() {
         AutoRoutine routine = autoFactory.newRoutine("2 algae");
         AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
         AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
@@ -183,6 +183,52 @@ public class RobotContainer {
         return routine;
     }
 
+    public AutoRoutine score2Algae() {
+        AutoRoutine routine = autoFactory.newRoutine("2 algae");
+        AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
+        AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
+        AutoTrajectory scoreToAlgae2 = routine.trajectory("score-algae2");
+        AutoTrajectory algae2ToScore = routine.trajectory("algae2-score");
+        AutoTrajectory scoreToAlgae3 = routine.trajectory("score-algae3");
+
+        algae1ToScore.atTimeBeforeEnd(1).onTrue(scoreAlgae(States.algaeToBardge, "left"));
+        algae2ToScore.atTimeBeforeEnd(1).onTrue(scoreAlgae(States.algaeToBardge, "left"));
+
+        routine.active().onTrue(Commands.sequence(
+                startToAlgae1.resetOdometry(),
+                startToAlgae1.cmd()));
+
+        startToAlgae1.done().onTrue(Commands.sequence(
+                collectAlgae(States.algaeFromReefLow, "right"),
+                algae1ToScore.resetOdometry(),
+                algae1ToScore.spawnCmd()));
+
+        algae1ToScore.done().onTrue(Commands.sequence(
+                Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
+                Commands.waitSeconds(0.5),
+                // Commands.waitUntil(superstructure.atSetpoint()),
+                // scoreAlgae(States.algaeToBardge, "left"),
+                scoreToAlgae2.spawnCmd()));
+
+        scoreToAlgae2.done().onTrue(Commands.sequence(
+            collectAlgae(States.algaeFromReefHigh, "right"),
+            algae2ToScore.resetOdometry(),
+            algae2ToScore.spawnCmd()));
+
+        algae2ToScore.done().onTrue(Commands.sequence(
+            Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
+            Commands.waitSeconds(0.5),
+            // Commands.waitUntil(superstructure.atSetpoint()),
+            // scoreAlgae(States.algaeToBardge, "left"),
+            scoreToAlgae3.spawnCmd()));
+
+        scoreToAlgae3.done().onTrue(Commands.sequence(
+            collectAlgae(States.algaeFromReefHigh, "right")
+        ));
+
+        return routine;
+    }
+
     public AutoRoutine scoreAlgae1Leave() {
         AutoRoutine routine = autoFactory.newRoutine("1 algae");
 
@@ -212,7 +258,9 @@ public class RobotContainer {
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
         autoSelector.addRoutine("score algae 1", this::score1Algae);
-        autoSelector.addRoutine("score algae 1,2", this::score2Algae);
+        autoSelector.addRoutine("score algae 1.5", this::score15Algae);
+        autoSelector.addRoutine("score 2 algae", this::score2Algae);
+
         autoSelector.select("score algae 1,2");
         autoSelector.addRoutine("score algae 1, safe", this::scoreAlgae1Leave);
     }

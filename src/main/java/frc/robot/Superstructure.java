@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.States;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -46,6 +47,7 @@ public class Superstructure extends SubsystemBase {
         elevatorMech.setLength(elevator.getHeight());
         armMech.setAngle(Units.rotationsToDegrees(arm.getPosition())-90);
         SmartDashboard.putNumber("arm pos", Units.rotationsToDegrees(arm.getPosition()));
+        SmartDashboard.putString("elevator state", getState().name());
     }
 
     private Command goTo(States state, String leftRight) { // TODO: make left/right function
@@ -58,12 +60,12 @@ public class Superstructure extends SubsystemBase {
 
         boolean yesGoToInline = false;
         Supplier<Command> goToInline = () -> Commands.sequence(
-            runOnce(() -> currentState=state),
+            Commands.runOnce(() -> currentState=state),
             elevator.goToPos(state.elevatorHeight),
             arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle));
         
         Supplier<Command> goTo = () -> Commands.sequence(
-            runOnce(() -> currentState=state),
+            Commands.runOnce(() -> currentState=state),
             Commands.parallel(
             elevator.goToPos(state.elevatorHeight),
             arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle)));
@@ -82,5 +84,13 @@ public class Superstructure extends SubsystemBase {
 
     public Command goToPos(States desiredState, String side) {
         return defer(() -> goTo(desiredState, side));
+    }
+
+    public Trigger atSetpoint() {
+        return elevator.atSetpoint().and(arm.atSetpoint());
+    }
+
+    public States getState() {
+        return currentState;
     }
 }

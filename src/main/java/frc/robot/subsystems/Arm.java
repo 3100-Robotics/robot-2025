@@ -40,7 +40,7 @@ public class Arm extends SubsystemBase {
 
     private CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration().
         withMagnetSensor(new MagnetSensorConfigs()
-            .withMagnetOffset(-0.004639)
+            .withMagnetOffset(-0.004639) // -0.994384765625 technically correct zero value
             .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
             .withAbsoluteSensorDiscontinuityPoint(1));
 
@@ -105,7 +105,7 @@ public class Arm extends SubsystemBase {
             .withSensorToMechanismRatio(1));
         pivotMotor.getConfigurator().apply(motorConfigs);
 
-        atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.005);
+        atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.01);
         // pivotEncoder.setPosition(0);
         // pivotMotor.setPosition(0);
 
