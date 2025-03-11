@@ -81,8 +81,6 @@ public class RobotContainer {
                 drivetrain // The drive subsystem
         );
 
-        CanBridge.runTCP();
-
         configureBindings();
         // configureSysidBindings();
         configureAutonomous();
@@ -91,8 +89,8 @@ public class RobotContainer {
     public Command collectAlgae(States collectingState, String side) {
         return Commands.sequence(
                 algae.set(-1),
-                superstructure.goToPos(collectingState, side).until(algae.currentHit()),
-                Commands.waitUntil(algae.currentHit()),
+                superstructure.goToPos(collectingState, side).until(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()),
                 // Commands.waitSeconds(0.15),
                 algae.set(0),
                 superstructure.goToPos(States.resting, "neither"));
@@ -100,7 +98,7 @@ public class RobotContainer {
 
     public Command scoreAlgae(States scoringPos, String side) {
         return Commands.sequence(
-            appendage_foam.setAngle(90),
+            appendage_foam.setAngle(0),
             superstructure.goToPos(scoringPos, side),
             algae.set(-0.5),
             Commands.waitSeconds(0.1),
@@ -108,7 +106,25 @@ public class RobotContainer {
             Commands.waitSeconds(0.5),
             algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
-            appendage_foam.setAngle(0));
+            appendage_foam.setAngle(90));
+    }
+
+    public Command collectCoral(States collectingState) {
+        return Commands.sequence(
+            algae.set(0.75),
+            superstructure.goToPos(collectingState, "right"),
+            Commands.waitUntil(algae.currentHit()),
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"));
+    }
+
+    public Command scoreCoral(States scoringPos) {
+        return Commands.sequence(
+            superstructure.goToPos(scoringPos, "right"),
+            algae.set(-0.25),
+            Commands.waitSeconds(0.5),
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"));
     }
 
     public AutoRoutine leave() {
@@ -277,17 +293,17 @@ public class RobotContainer {
             )
         );
 
-        driverJoystick.y().whileTrue(drivetrain.allignToBarge());
-
-        driverJoystick.x().and(driverJoystick.leftBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.currentHit(), "left"));
-        driverJoystick.x().and(driverJoystick.rightBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.currentHit(), "right"));
-
-        driverJoystick.a().onTrue(climber.goToPos(0));
-        driverJoystick.b().onTrue(climber.goToPos(3));
-
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 
         driverJoystick.a().onTrue(superstructure.goToPos(States.algaeFromLollipop, "right"));
+
+        driverJoystick.y().whileTrue(drivetrain.allignToBarge());
+
+        driverJoystick.x().and(driverJoystick.leftBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "left"));
+        driverJoystick.x().and(driverJoystick.rightBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "right"));
+
+        // driverJoystick.a().onTrue(climber.goToPos(0)); unused at the moment
+        // driverJoystick.b().onTrue(climber.goToPos(3));
 
         ///////////
         // ALGAE //
@@ -295,7 +311,7 @@ public class RobotContainer {
 
         driverJoystick.povUp().onTrue(Commands.sequence(
             algae.set(-1),
-            Commands.waitUntil(algae.currentHit()),
+            Commands.waitUntil(algae.limitHit()),
             Commands.waitSeconds(0.25),
             algae.set(0)));
 
@@ -335,16 +351,16 @@ public class RobotContainer {
 
         coDriverJoystick.b().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
             algae.set(-1),
-            superstructure.goToPos(States.algaeFromLollipop, "left").until(algae.currentHit()),
-            Commands.waitUntil(algae.currentHit()),
+            superstructure.goToPos(States.algaeFromLollipop, "left").until(algae.limitHit()),
+            Commands.waitUntil(algae.limitHit()),
             Commands.waitSeconds(0.15),
             superstructure.goToPos(States.resting, "neither"),
             algae.set(0)));
 
         coDriverJoystick.b().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
             algae.set(-1),
-            superstructure.goToPos(States.algaeFromLollipop, "right").until(algae.currentHit()),
-            Commands.waitUntil(algae.currentHit()),
+            superstructure.goToPos(States.algaeFromLollipop, "right").until(algae.limitHit()),
+            Commands.waitUntil(algae.limitHit()),
             Commands.waitSeconds(0.15),
             superstructure.goToPos(States.resting, "neither"),
             algae.set(0)));
@@ -353,22 +369,11 @@ public class RobotContainer {
         // CORAL //
         ///////////
 
-        // collection
-//        coDriverJoystick.povUp().onTrue(Commands.sequence(
-//                superstructure.goToPos(States.coralHumanPlayer, "neither"),
-//                coral.set(-0.5),
-//                Commands.waitUntil(coral.currentHit()),
-//                superstructure.goToPos(States.resting, "neither")));
+        coDriverJoystick.povDown().onTrue(collectCoral(States.coralFromGround));
 
-        // scoring
-        // l2
-//        coDriverJoystick.povDown().onTrue(scoreCoral(States.coralReefL2));
+        coDriverJoystick.povLeft().onTrue(collectCoral(States.coralFromHp));
 
-        // l3
-//        coDriverJoystick.povLeft().onTrue(scoreCoral(States.coralReefL3));
-
-        // l4
-//        coDriverJoystick.povRight().onTrue(scoreCoral(States.coralReefL4));
+        coDriverJoystick.povUp().onTrue(scoreCoral(States.coralToL1));
 
         // reset the field-centric heading on left bumper press
         // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
