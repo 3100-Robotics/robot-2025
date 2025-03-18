@@ -62,6 +62,11 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    addPeriodic(() -> {
+      Optional<EstimatedRobotPose> pose = m_robotContainer.downCamera.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
+      if (pose.isPresent()) {
+        m_robotContainer.drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
+      }}, 0.020);
   }
 
   @Override
