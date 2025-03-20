@@ -58,28 +58,38 @@ public class Superstructure extends SubsystemBase {
                     elevator.goToPos(States.resting.elevatorHeight),
                     arm.goToPos(States.resting.armAngle)));
 
-        boolean yesGoToInline = false;
-        Supplier<Command> goToInline = () -> Commands.sequence(
+        boolean yesElevatorFirst = false;
+        Supplier<Command> goToElevatorFirst = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
             elevator.goToPos(state.elevatorHeight),
             arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle));
         
+        boolean yesArmFirst = false;
+        Supplier<Command> goToArmFirst = () -> Commands.sequence(
+            Commands.runOnce(() -> currentState=state),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle),
+            elevator.goToPos(state.elevatorHeight));
+
         Supplier<Command> goTo = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
             Commands.parallel(
             elevator.goToPos(state.elevatorHeight),
             arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle)));
 
-        if (!(currentState == States.resting || currentState == state)) {
+        if (!(currentState.equals(States.resting) || currentState.equals(state) || (currentState.equals(States.algaeFromReefHighStep1) && state.equals(States.algaeFromReefHighStep2)))) {
             yesGoToStatic = true;
         }
         
-        if (state.equals(States.algaeToBardge) || state.equals(States.algaeFromReefHigh) || state.equals(States.algaeFromGround) || state.equals(States.coralFromGround)) {
-            yesGoToInline = true;
+        if (state.equals(States.algaeFromReefHighStep1) || state.equals(States.algaeToBardge) || state.equals(States.algaeFromGround) || state.equals(States.coralFromGround)) {
+            yesElevatorFirst = true;
+        }
+        else if (state.equals(States.algaeFromReefHighStep1)) {
+            yesArmFirst = true;
         }
         return Commands.sequence(
             yesGoToStatic ? goToStatic.get() : Commands.none(),
-            yesGoToInline? goToInline.get() : goTo.get());
+            (yesElevatorFirst ? goToElevatorFirst.get() :
+                yesArmFirst ? goTo.get() : goTo.get()));
     }
 
     public Command goToPos(States desiredState, String side) {

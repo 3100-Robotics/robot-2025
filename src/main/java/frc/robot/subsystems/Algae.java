@@ -41,7 +41,7 @@ public class Algae extends SubsystemBase {
     
     public Algae() {
         motor.configure(config, null, null);
-        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 20);
+        currentTrigger = new Trigger(() -> currentFilter.calculate(motor.getOutputCurrent()) >= 15);
         limitTrigger = new Trigger(() -> !limitSwitch.get());
 
         try {

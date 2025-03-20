@@ -109,6 +109,18 @@ public class RobotContainer {
             appendage_foam.setAngle(90));
     }
 
+    public Command collectAlgaeReefHigh(String side) {
+        return Commands.sequence(
+                algae.set(-1),
+                superstructure.goToPos(States.algaeFromReefHighStep1, side),
+                Commands.print("first state done"),
+                superstructure.goToPos(States.algaeFromReefHighStep2, side).until(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()),
+                // Commands.waitSeconds(0.15),
+                algae.set(0),
+                superstructure.goToPos(States.resting, "neither"));
+    }
+
     public Command collectCoral(States collectingState) {
         return Commands.sequence(
             algae.set(0.75),
@@ -185,7 +197,7 @@ public class RobotContainer {
 
         scoreToAlgae2.done().onTrue(Commands.sequence(
             Commands.print("algae 1 done"),
-            collectAlgae(States.algaeFromReefHigh, "right")));
+            collectAlgaeReefHigh("right")));
 
         // algae1.active().onFalse(Commands.sequence(
         //         scoreToAlgae2.spawnCmd()));
@@ -227,7 +239,7 @@ public class RobotContainer {
                 scoreToAlgae2.spawnCmd()));
 
         scoreToAlgae2.done().onTrue(Commands.sequence(
-            collectAlgae(States.algaeFromReefHigh, "right"),
+            collectAlgaeReefHigh("right"),
             algae2ToScore.resetOdometry(),
             algae2ToScore.spawnCmd()));
 
@@ -239,7 +251,7 @@ public class RobotContainer {
             scoreToAlgae3.spawnCmd()));
 
         scoreToAlgae3.done().onTrue(Commands.sequence(
-            collectAlgae(States.algaeFromReefHigh, "right")
+            collectAlgaeReefHigh("right")
         ));
 
         return routine;
@@ -332,9 +344,9 @@ public class RobotContainer {
 
         // between l3 and l4
         // left
-        coDriverJoystick.y().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromReefHigh, "left"));
+        coDriverJoystick.y().and(driverJoystick.leftBumper()).onTrue(collectAlgaeReefHigh("left"));
         // right
-        coDriverJoystick.y().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromReefHigh, "right"));
+        coDriverJoystick.y().and(driverJoystick.rightBumper()).onTrue(collectAlgaeReefHigh("right"));
 
         // scoring
 

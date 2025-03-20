@@ -2,10 +2,11 @@ package frc.robot;
 
 public class Constants {
     public static enum States {
-        algaeFromGround(-0.0732, 0.33), // has left/right
+        algaeFromGround(-0.0702, 0.3), // has left/right
         algaeFromLollipop(0.05, 0), // has left/right
         algaeFromReefLow(0.14, 0.09), // has left/right
-        algaeFromReefHigh(0.14, 0.5), // has left/right
+        algaeFromReefHighStep1(0.14, 0.4), // has left/right
+        algaeFromReefHighStep2(0.14, 0.5), // has left/right
         algaeToBardge(0.15, 1.45), // has left/right 0.1674722
         algaeToProcessor(0.000, 0.19), // has left/right
         coralFromGround(-0.022, 0.14), // no left/right -0.0432
