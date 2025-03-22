@@ -44,6 +44,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.RobotCentric driveRobotCentric = new SwerveRequest.RobotCentric();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -132,6 +133,10 @@ public class RobotContainer {
 
     public Command scoreCoral(States scoringPos) {
         return Commands.sequence(
+            drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0.75))
+                .withTimeout(0.2),
+            drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0))
+                .withTimeout(0.001),
             superstructure.goToPos(scoringPos, "right"),
             algae.set(-0.25),
             Commands.waitSeconds(0.5),
