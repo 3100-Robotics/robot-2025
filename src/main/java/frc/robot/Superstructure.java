@@ -13,7 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.States;
+import frc.robot.Constants.superstructureConstants.States;
+import frc.robot.Constants.superstructureConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
@@ -51,45 +52,44 @@ public class Superstructure extends SubsystemBase {
     }
 
     private Command goTo(States state, String leftRight) { // TODO: make left/right function
-        boolean yesGoToStatic = false;
+        boolean yesGoToStatic = true;
         Supplier<Command> goToStatic = () -> Commands.sequence(
                 Commands.runOnce(() -> currentState=state),
                 Commands.parallel(
-                    elevator.goToPos(States.resting.elevatorHeight),
-                    arm.goToPos(States.resting.armAngle)));
+                    elevator.goToPos(States.resting.elevatorHeight1),
+                    arm.goToPos(States.resting.armAngle1)));
 
-        boolean yesElevatorFirst = false;
-        Supplier<Command> goToElevatorFirst = () -> Commands.sequence(
+        Supplier<Command> goToElevatorFirst1 = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
-            elevator.goToPos(state.elevatorHeight),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle));
+            elevator.goToPos(state.elevatorHeight1),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1));
+
+        Supplier<Command> goToElevatorFirst2 = () -> Commands.sequence(
+            Commands.runOnce(() -> currentState=state),
+            elevator.goToPos(state.elevatorHeight2),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle2 : state.armAngle2));
+
         
-        boolean yesArmFirst = false;
-        Supplier<Command> goToArmFirst = () -> Commands.sequence(
-            Commands.runOnce(() -> currentState=state),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle),
-            elevator.goToPos(state.elevatorHeight));
-
-        Supplier<Command> goTo = () -> Commands.sequence(
+        Supplier<Command> goTo1 = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
             Commands.parallel(
-            elevator.goToPos(state.elevatorHeight),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle)));
+            elevator.goToPos(state.elevatorHeight1),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1)));
 
-        if (!(currentState.equals(States.resting) || currentState.equals(state) || (currentState.equals(States.algaeFromReefHighStep1) && state.equals(States.algaeFromReefHighStep2)))) {
-            yesGoToStatic = true;
-        }
+        Supplier<Command> goTo2 = () -> Commands.sequence(
+            Commands.runOnce(() -> currentState=state),
+            Commands.parallel(
+            elevator.goToPos(state.elevatorHeight2),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle2 : state.armAngle2)));
         
-        if (state.equals(States.algaeFromReefHighStep1) || state.equals(States.algaeToBardge) || state.equals(States.algaeFromGround) || state.equals(States.coralFromGround)) {
-            yesElevatorFirst = true;
+        if (superstructureConstants.allowedToFroms.get(currentState).contains(state) || currentState.equals(States.resting) || currentState.equals(state)) {
+            yesGoToStatic = false;
         }
-        else if (state.equals(States.algaeFromReefHighStep1)) {
-            yesArmFirst = true;
-        }
+
         return Commands.sequence(
             yesGoToStatic ? goToStatic.get() : Commands.none(),
-            (yesElevatorFirst ? goToElevatorFirst.get() :
-                yesArmFirst ? goTo.get() : goTo.get()));
+            (state.elevatorFirst1 ? goToElevatorFirst1.get() : goTo1.get()),
+            (state.elevatorFirst2 ? goToElevatorFirst2.get() : goTo2.get()));
     }
 
     public Command goToPos(States desiredState, String side) {

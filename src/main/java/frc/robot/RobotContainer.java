@@ -15,7 +15,6 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import au.grapplerobotics.CanBridge;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -25,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Constants.States;
+import frc.robot.Constants.superstructureConstants.States;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Algae;
 import frc.robot.subsystems.AppendageFoam;
@@ -110,18 +109,6 @@ public class RobotContainer {
             appendage_foam.setAngle(90));
     }
 
-    public Command collectAlgaeReefHigh(String side) {
-        return Commands.sequence(
-                algae.set(-1),
-                superstructure.goToPos(States.algaeFromReefHighStep1, side),
-                Commands.print("first state done"),
-                superstructure.goToPos(States.algaeFromReefHighStep2, side).until(algae.limitHit()),
-                Commands.waitUntil(algae.limitHit()),
-                // Commands.waitSeconds(0.15),
-                algae.set(0),
-                superstructure.goToPos(States.resting, "neither"));
-    }
-
     public Command collectCoral(States collectingState) {
         return Commands.sequence(
             algae.set(0.75),
@@ -185,7 +172,6 @@ public class RobotContainer {
         AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
         AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
         AutoTrajectory scoreToAlgae2 = routine.trajectory("score-algae2");
-        AutoTrajectory algae2ToScore = routine.trajectory("algae2-score");
 
         routine.active().onTrue(Commands.sequence(
                 startToAlgae1.resetOdometry(),
@@ -202,16 +188,7 @@ public class RobotContainer {
 
         scoreToAlgae2.done().onTrue(Commands.sequence(
             Commands.print("algae 1 done"),
-            collectAlgaeReefHigh("right")));
-
-        // algae1.active().onFalse(Commands.sequence(
-        //         scoreToAlgae2.spawnCmd()));
-
-        // algae2ToScore.done().onTrue(Commands.sequence(
-        
-        //         algae2ToScore.spawnCmd()));
-
-        // algae2ToScore.done().onTrue(scoreAlgae(States.algaeToBardge, "right"));
+            collectAlgae(States.algaeFromReefHigh, "right")));
 
         return routine;
     }
@@ -231,10 +208,18 @@ public class RobotContainer {
                 startToAlgae1.resetOdometry(),
                 startToAlgae1.cmd()));
 
-        startToAlgae1.done().onTrue(Commands.sequence(
-                collectAlgae(States.algaeFromReefLow, "right"),
+        startToAlgae1.done().onTrue(Commands.parallel(
+            collectAlgae(States.algaeFromReefLow, "right"),
+            Commands.sequence(
+                Commands.waitUntil(algae.limitHit()),
                 algae1ToScore.resetOdometry(),
-                algae1ToScore.spawnCmd()));
+                algae1ToScore.spawnCmd())));
+        
+        // TODO: if waiting untill I have an algae doesn't work uncomment this
+        // Commands.sequence(
+        //         collectAlgae(States.algaeFromReefLow, "right"),
+        //         algae1ToScore.resetOdometry(),
+        //         algae1ToScore.spawnCmd()));
 
         algae1ToScore.done().onTrue(Commands.sequence(
                 Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
@@ -243,10 +228,18 @@ public class RobotContainer {
                 // scoreAlgae(States.algaeToBardge, "left"),
                 scoreToAlgae2.spawnCmd()));
 
-        scoreToAlgae2.done().onTrue(Commands.sequence(
-            collectAlgaeReefHigh("right"),
-            algae2ToScore.resetOdometry(),
-            algae2ToScore.spawnCmd()));
+        // TODO: if waiting untill I have an algae doesn't work uncomment this
+        // scoreToAlgae2.done().onTrue(Commands.sequence(
+        //     collectAlgae(States.algaeFromReefHigh, "right"),
+        //     algae2ToScore.resetOdometry(),
+        //     algae2ToScore.spawnCmd()));
+
+        scoreToAlgae2.done().onTrue(Commands.parallel(
+            collectAlgae(States.algaeFromReefHigh, "right"),
+            Commands.sequence(
+                Commands.waitUntil(algae.limitHit()),
+                algae2ToScore.resetOdometry(),
+                algae2ToScore.spawnCmd())));
 
         algae2ToScore.done().onTrue(Commands.sequence(
             Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
@@ -256,7 +249,7 @@ public class RobotContainer {
             scoreToAlgae3.spawnCmd()));
 
         scoreToAlgae3.done().onTrue(Commands.sequence(
-            collectAlgaeReefHigh("right")
+            collectAlgae(States.algaeFromReefHigh, "right")
         ));
 
         return routine;
@@ -323,6 +316,8 @@ public class RobotContainer {
         // driverJoystick.a().onTrue(climber.goToPos(0)); unused at the moment
         // driverJoystick.b().onTrue(climber.goToPos(3));
 
+        coDriverJoystick.povRight().onTrue(superstructure.goToPos(States.resting, "neither"));
+
         ///////////
         // ALGAE //
         ///////////
@@ -330,7 +325,6 @@ public class RobotContainer {
         driverJoystick.povUp().onTrue(Commands.sequence(
             algae.set(-1),
             Commands.waitUntil(algae.limitHit()),
-            Commands.waitSeconds(0.25),
             algae.set(0)));
 
         // collection
@@ -349,9 +343,9 @@ public class RobotContainer {
 
         // between l3 and l4
         // left
-        coDriverJoystick.y().and(driverJoystick.leftBumper()).onTrue(collectAlgaeReefHigh("left"));
+        coDriverJoystick.y().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromReefHigh, "left"));
         // right
-        coDriverJoystick.y().and(driverJoystick.rightBumper()).onTrue(collectAlgaeReefHigh("right"));
+        coDriverJoystick.y().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromReefHigh, "right"));
 
         // scoring
 
