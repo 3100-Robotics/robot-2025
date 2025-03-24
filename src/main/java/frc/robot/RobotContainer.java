@@ -283,7 +283,9 @@ public class RobotContainer {
     }
 
     private void configureFoamBind() {
-
+        driverJoystick.a().onTrue(protectionArms.restArm());
+        driverJoystick.b().onTrue(protectionArms.set("left"));
+        driverJoystick.x().onTrue(protectionArms.set("right"));
     }
 
     private void configureBindings() {
