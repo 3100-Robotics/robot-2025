@@ -50,12 +50,12 @@ public class Constants {
             States.algaeFromGround, List.of(States.resting, States.coralFromGround, States.algaeFromLollipop),
             States.algaeFromLollipop, List.of(States.resting, States.algaeFromGround, States.coralFromGround),
             States.algaeFromReefHigh, List.of(States.resting),
-            States.algaeFromReefLow, List.of(States.resting),
+            States.algaeFromReefLow, List.of(States.resting, States.coralToL1),
             States.algaeToBardge, List.of(States.resting),
             States.algaeToProcessor, List.of(States.resting),
             States.coralFromGround, List.of(States.resting, States.algaeFromGround, States.algaeFromLollipop),
             States.coralFromHp, List.of(States.resting),
-            States.coralToL1, List.of(States.resting),
+            States.coralToL1, List.of(States.resting, States.algaeFromReefLow),
             States.resting, List.of(States.resting));
     }
 }

@@ -39,7 +39,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -118,13 +118,13 @@ public class RobotContainer {
             superstructure.goToPos(States.resting, "neither"));
     }
 
-    public Command scoreCoral(States scoringPos) {
+    public Command scoreCoral() {
         return Commands.sequence(
             drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0.75))
                 .withTimeout(0.2),
             drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0))
                 .withTimeout(0.001),
-            superstructure.goToPos(scoringPos, "right"),
+            superstructure.goToPos(States.coralToL1, "right"),
             algae.set(-0.25),
             Commands.waitSeconds(0.5),
             algae.set(0),
@@ -278,17 +278,46 @@ public class RobotContainer {
         return routine;
     }
 
+    public AutoRoutine scoreManyCoral() {
+        AutoRoutine routine = autoFactory.newRoutine("many coral");
+
+        AutoTrajectory startToScore1 = routine.trajectory("start2-score1");
+        AutoTrajectory score1ToCollect = routine.trajectory("score1-collect");
+        AutoTrajectory collectToscore2 = routine.trajectory("collect-score2");
+        AutoTrajectory score2ToCollect = routine.trajectory("score2-collect");
+
+        routine.active().onTrue(Commands.sequence(
+            startToScore1.resetOdometry(),
+            startToScore1.spawnCmd()));
+        
+        startToScore1.done().onTrue(Commands.sequence(
+            scoreCoral(),
+            score1ToCollect.spawnCmd()
+                .alongWith(collectCoral(States.coralFromHp))));
+        
+        routine.observe(algae.currentHit()).onTrue(
+            collectToscore2.spawnCmd());
+
+        collectToscore2.done().onTrue(Commands.sequence(
+            scoreCoral(),
+            score2ToCollect.spawnCmd()
+                .alongWith(collectCoral(States.coralToL1))));
+
+        return routine;
+    }
+
     private void configureAutonomous() {
         SmartDashboard.putData("auto selector", autoSelector);
 
         autoSelector.addCmd("nothing", Commands::none);
         autoSelector.addRoutine("leave", this::leave);
-        autoSelector.addRoutine("score algae 1", this::score1Algae);
-        autoSelector.addRoutine("score algae 1.5", this::score15Algae);
+        autoSelector.addRoutine("score 1 algae", this::score1Algae);
+        autoSelector.addRoutine("score 1.5 algae", this::score15Algae);
         autoSelector.addRoutine("score 2 algae", this::score2Algae);
-
-        autoSelector.select("score algae 1,2");
         autoSelector.addRoutine("score algae 1, safe", this::scoreAlgae1Leave);
+        autoSelector.addRoutine("score many coral", this::scoreManyCoral);
+
+        autoSelector.select("score 2 algae");
     }
 
     private void configureBindings() {
@@ -385,7 +414,7 @@ public class RobotContainer {
 
         coDriverJoystick.povLeft().onTrue(collectCoral(States.coralFromHp));
 
-        coDriverJoystick.povUp().onTrue(scoreCoral(States.coralToL1));
+        coDriverJoystick.povUp().onTrue(scoreCoral());
 
         // reset the field-centric heading on left bumper press
         // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

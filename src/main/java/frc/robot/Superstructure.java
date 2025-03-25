@@ -51,7 +51,7 @@ public class Superstructure extends SubsystemBase {
         SmartDashboard.putString("elevator state", getState().name());
     }
 
-    private Command goTo(States state, String leftRight) { // TODO: make left/right function
+    private Command goTo(States state, String leftRight) {
         boolean yesGoToStatic = true;
         Supplier<Command> goToStatic = () -> Commands.sequence(
                 Commands.runOnce(() -> currentState=state),
