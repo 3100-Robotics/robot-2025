@@ -111,7 +111,7 @@ public class RobotContainer {
 
     public Command collectCoral(States collectingState) {
         return Commands.sequence(
-            algae.set(0.75),
+            algae.set(1),
             superstructure.goToPos(collectingState, "right"),
             Commands.waitUntil(algae.currentHit()),
             algae.set(0),
@@ -345,7 +345,9 @@ public class RobotContainer {
         // driverJoystick.a().onTrue(climber.goToPos(0)); unused at the moment
         // driverJoystick.b().onTrue(climber.goToPos(3));
 
-        coDriverJoystick.povRight().onTrue(superstructure.goToPos(States.resting, "neither"));
+        coDriverJoystick.povRight().onTrue(Commands.parallel(
+            superstructure.goToPos(States.resting, "neither"),
+            algae.set(0)));
 
         ///////////
         // ALGAE //
