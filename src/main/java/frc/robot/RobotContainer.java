@@ -81,8 +81,7 @@ public class RobotContainer {
                 drivetrain // The drive subsystem
         );
 
-        // configureBindings();
-        configureFoamBind();
+        configureBindings();
         // configureSysidBindings();
         configureAutonomous();
     }
@@ -280,12 +279,6 @@ public class RobotContainer {
 
         autoSelector.select("score algae 1,2");
         autoSelector.addRoutine("score algae 1, safe", this::scoreAlgae1Leave);
-    }
-
-    private void configureFoamBind() {
-        driverJoystick.a().onTrue(protectionArms.restArm());
-        driverJoystick.b().onTrue(protectionArms.set("left"));
-        driverJoystick.x().onTrue(protectionArms.set("right"));
     }
 
     private void configureBindings() {
