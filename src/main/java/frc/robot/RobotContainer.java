@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.superstructureConstants.States;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Algae;
-import frc.robot.subsystems.AppendageFoam;
+import frc.robot.subsystems.ProtectionArms;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
@@ -51,7 +51,7 @@ public class RobotContainer {
     public final Climber climber = new Climber();
     public final Algae algae = new Algae();
 
-    public final AppendageFoam appendage_foam = new AppendageFoam();
+    public final ProtectionArms protectionArms = new ProtectionArms();
 
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
@@ -95,10 +95,10 @@ public class RobotContainer {
                 algae.set(0),
                 superstructure.goToPos(States.resting, "neither"));
     }
-
+    
     public Command scoreAlgae(States scoringPos, String side) {
-        return Commands.sequence(
-            appendage_foam.setAngle(0),
+        return Commands.sequence( 
+            protectionArms.set(side),
             superstructure.goToPos(scoringPos, side),
             algae.set(-0.5),
             Commands.waitSeconds(0.1),
@@ -106,7 +106,7 @@ public class RobotContainer {
             Commands.waitSeconds(0.5),
             algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
-            appendage_foam.setAngle(90));
+            protectionArms.restArm());
     }
 
     public Command collectCoral(States collectingState) {
