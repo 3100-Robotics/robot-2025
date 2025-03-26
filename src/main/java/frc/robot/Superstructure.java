@@ -64,23 +64,19 @@ public class Superstructure extends SubsystemBase {
             elevator.goToPos(state.elevatorHeight1),
             arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1));
 
-        Supplier<Command> goToElevatorFirst2 = () -> Commands.sequence(
+        Supplier<Command> goToArmDelayed = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
-            elevator.goToPos(state.elevatorHeight2),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle2 : state.armAngle2));
+            Commands.parallel(
+                elevator.goToPos(state.elevatorHeight1),
+                Commands.sequence(
+                    Commands.waitUntil(() -> elevator.getHeight() >= state.elevatorHeightTrigger),
+                    arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1))));
 
-        
         Supplier<Command> goTo1 = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
             Commands.parallel(
             elevator.goToPos(state.elevatorHeight1),
             arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1)));
-
-        Supplier<Command> goTo2 = () -> Commands.sequence(
-            Commands.runOnce(() -> currentState=state),
-            Commands.parallel(
-            elevator.goToPos(state.elevatorHeight2),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle2 : state.armAngle2)));
         
         if (superstructureConstants.allowedToFroms.get(currentState).contains(state) || currentState.equals(States.resting) || currentState.equals(state)) {
             yesGoToStatic = false;
@@ -88,8 +84,8 @@ public class Superstructure extends SubsystemBase {
 
         return Commands.sequence(
             yesGoToStatic ? goToStatic.get() : Commands.none(),
-            (state.elevatorFirst1 ? goToElevatorFirst1.get() : goTo1.get()),
-            (state.elevatorFirst2 ? goToElevatorFirst2.get() : goTo2.get()));
+            (state.elevatorFirst1 ? goToElevatorFirst1.get() : 
+            !(state.elevatorHeightTrigger == state.elevatorHeight1) ? goToArmDelayed.get() : goTo1.get()));
     }
 
     public Command goToPos(States desiredState, String side) {

@@ -13,9 +13,9 @@ public class ProtectionArms extends SubsystemBase {
     private Servo motorRight = new Servo(8);
 
     private double leftrest = 95;
-    private double rightrest = 180;
+    private double rightrest = 0;
     private double leftdown = 0;
-    private double rightdown = 110;
+    private double rightdown = 60;
 
     public ProtectionArms() {
         SmartDashboard.putNumber("leftrest", 0);

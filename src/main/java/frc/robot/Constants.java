@@ -9,8 +9,8 @@ public class Constants {
         public static enum States {
             algaeFromGround(-0.0702, 0.3, true), // has left/right
             algaeFromLollipop(0.05, 0, false), // has left/right
-            algaeFromReefLow(0.14, 0.09, false), // has left/right
-            algaeFromReefHigh(0.14, 0.4, 0.14, 0.5, true, false), // has left/right
+            algaeFromReefLow(0.14, 0.05, false), // has left/right
+            algaeFromReefHigh(0.15, 0.45, 0.1, false), // has left/right
             algaeToBardge(0.15, 1.45, true), // has left/right 0.1674722
             algaeToProcessor(0.000, 0.19, false), // has left/right
             coralFromGround(-0.022, 0.14, true), // no left/right
@@ -20,29 +20,23 @@ public class Constants {
     
             public double armAngle1;
             public double elevatorHeight1;
-            public double armAngle2;
-            public double elevatorHeight2;
+            public double elevatorHeightTrigger;
     
             public Boolean elevatorFirst1;
-            public Boolean elevatorFirst2;
     
     
             States(double angle, double height, Boolean elevatorFirst) {
                 armAngle1 = angle;
                 elevatorHeight1 = height;
-                armAngle2 = angle;
-                elevatorHeight2 = height;
+                elevatorHeightTrigger = height;
                 elevatorFirst1 = elevatorFirst;
-                elevatorFirst2 = elevatorFirst;
             }
     
-            States(double angle1, double height1, double angle2, double height2, Boolean elevatorFirstOne, Boolean elevatorFirstTwo) {
+            States(double angle1, double height1, double armTriggerHeight, Boolean elevatorFirstOne) {
                 armAngle1 = angle1;
                 elevatorHeight1 = height1;
-                armAngle2 = angle2;
-                elevatorHeight2 = height2;
+                elevatorHeightTrigger = armTriggerHeight;
                 elevatorFirst1 = elevatorFirstOne;
-                elevatorFirst2 = elevatorFirstTwo;
             }
         }
 

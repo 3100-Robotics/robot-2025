@@ -173,6 +173,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getHeight() {
-        return elevatorMotor1.getPosition().getValueAsDouble()* sprocketRadius *2*Math.PI;
+        return elevatorMotor1.getPosition().getValueAsDouble()* sprocketRadius * 2 * Math.PI * carriageRatio;
     }
 }
