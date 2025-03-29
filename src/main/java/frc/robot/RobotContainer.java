@@ -39,7 +39,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
+            .withDeadband(MaxSpeed * 0.09).withRotationalDeadband(MaxAngularRate * 0.09) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -91,7 +91,6 @@ public class RobotContainer {
                 algae.set(-1),
                 superstructure.goToPos(collectingState, side).until(algae.limitHit()),
                 Commands.waitUntil(algae.limitHit()),
-                // Commands.waitSeconds(0.15),
                 algae.set(0),
                 superstructure.goToPos(States.resting, "neither"));
     }
@@ -109,6 +108,25 @@ public class RobotContainer {
             protectionArms.restArm());
     }
 
+    public Command scoreAlgaeProcessor(String side) {
+        return Commands.sequence(
+            drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(side.equals("left") ? -1.5 : 1.5))
+                .withTimeout(0.3).asProxy(),
+            drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0))
+                .withTimeout(0.001).asProxy(),
+            superstructure.goToPos(States.algaeToProcessor, side),
+            drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(side.equals("left") ? 1.5 : -1.5))
+                .withTimeout(0.1).asProxy(),
+            drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0))
+                .withTimeout(0.001).asProxy(),  
+            algae.set(-0.25),
+            Commands.waitSeconds(0.1),
+            algae.set(0.5),
+            Commands.waitSeconds(0.5),
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"));
+    }
+
     public Command collectCoral(States collectingState) {
         return Commands.sequence(
             algae.set(1),
@@ -121,9 +139,9 @@ public class RobotContainer {
     public Command scoreCoral() {
         return Commands.sequence(
             drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0.75))
-                .withTimeout(0.2),
+                .withTimeout(0.2).asProxy(),
             drivetrain.applyRequest(() -> driveRobotCentric.withVelocityY(0))
-                .withTimeout(0.001),
+                .withTimeout(0.001).asProxy(),
             superstructure.goToPos(States.coralToL1, "right"),
             algae.set(-0.25),
             Commands.waitSeconds(0.5),
@@ -382,9 +400,9 @@ public class RobotContainer {
 
         // processor
         // left
-        coDriverJoystick.rightBumper().and(driverJoystick.leftBumper()).onTrue(scoreAlgae(States.algaeToProcessor, "left"));
+        coDriverJoystick.rightBumper().and(driverJoystick.leftBumper()).onTrue(scoreAlgaeProcessor("left"));
         // right
-        coDriverJoystick.rightBumper().and(driverJoystick.rightBumper()).onTrue(scoreAlgae(States.algaeToProcessor, "right"));
+        coDriverJoystick.rightBumper().and(driverJoystick.rightBumper()).onTrue(scoreAlgaeProcessor("right"));
 
         // barge
         // left

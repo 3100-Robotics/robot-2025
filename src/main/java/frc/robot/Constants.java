@@ -12,7 +12,7 @@ public class Constants {
             algaeFromReefLow(0.14, 0.05, false), // has left/right
             algaeFromReefHigh(0.15, 0.45, 0.1, false), // has left/right
             algaeToBardge(0.15, 1.45, true), // has left/right 0.1674722
-            algaeToProcessor(0.000, 0.19, false), // has left/right
+            algaeToProcessor(-0.07, 0.59, true), // has left/right 0.000, 0.19 //// -0.07, 0.49
             coralFromGround(-0.022, 0.14, true), // no left/right
             coralFromHp(0.2, 0.18, false), // no left/right
             coralToL1(0.15, 0.01, false), // no left/right
