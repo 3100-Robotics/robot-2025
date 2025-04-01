@@ -63,7 +63,7 @@ public class RobotContainer {
         Units.inchesToMeters(11.25)),
         new Rotation3d(0, Math.toRadians(0), Math.toRadians(-90))));
 
-    public final Vision gamePieceCamera = new Vision("game piece", new Transform3d());
+    public final Vision gamePieceCamera = new Vision("up", new Transform3d());
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);

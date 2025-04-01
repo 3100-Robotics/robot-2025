@@ -119,7 +119,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
     private final PIDController odometryAllign = new PIDController(3, 0, 0);
-    private final PIDController gamePieceAllign = new PIDController(1, 0, 0);
+    private final PIDController gamePieceAllign = new PIDController(0.1, 0, 0);
     private final SwerveRequest.ApplyFieldSpeeds alignRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.RobotCentric collectRequest = new SwerveRequest.RobotCentric();
 
@@ -272,17 +272,15 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         return run(() -> {
             Optional<PhotonPipelineResult> results = visionData.get();
             if (results.isPresent()) {
+                // System.out.println(results.get().getBestTarget().getYaw());
                 double speed = gamePieceAllign.calculate(results.get().getBestTarget().getYaw());
+                // System.out.println(speed);
                 setControl(collectRequest
-                    .withVelocityX(Math.min(speed, 0.5))
+                    .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0.5), speed))
                     .withVelocityY(1*(side == "left" ? 1 : -1)));
             }
-            else {
-                setControl(collectRequest
-                    .withVelocityX(0)
-                    .withVelocityY(0));
-            }
-        }).until(runUntil);
+        }).until(runUntil)
+            .andThen(applyRequest(() -> collectRequest.withVelocityX(0).withVelocityY(0)));
     }
 
     @Override
