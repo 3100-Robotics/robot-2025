@@ -410,21 +410,9 @@ public class RobotContainer {
         // right
         coDriverJoystick.leftBumper().and(driverJoystick.rightBumper()).onTrue(scoreAlgae(States.algaeToBardge, "right"));
 
-        coDriverJoystick.b().and(driverJoystick.leftBumper()).onTrue(Commands.sequence(
-            algae.set(-1),
-            superstructure.goToPos(States.algaeFromLollipop, "left").until(algae.limitHit()),
-            Commands.waitUntil(algae.limitHit()),
-            Commands.waitSeconds(0.15),
-            superstructure.goToPos(States.resting, "neither"),
-            algae.set(0)));
+        coDriverJoystick.b().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromLollipop, "left"));
 
-        coDriverJoystick.b().and(driverJoystick.rightBumper()).onTrue(Commands.sequence(
-            algae.set(-1),
-            superstructure.goToPos(States.algaeFromLollipop, "right").until(algae.limitHit()),
-            Commands.waitUntil(algae.limitHit()),
-            Commands.waitSeconds(0.15),
-            superstructure.goToPos(States.resting, "neither"),
-            algae.set(0)));
+        coDriverJoystick.b().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromLollipop, "right"));
 
         ///////////
         // CORAL //

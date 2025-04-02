@@ -64,12 +64,9 @@ public class Vision {
         }
     }
 
-   public Optional<PhotonPipelineResult> getLatestResult() {
+   public List<PhotonPipelineResult> getLatestResult() {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        if (!results.isEmpty()) {
-            return Optional.of(results.get(0));
-        }
-        return Optional.empty();
+        return results;
    }
 
     /**

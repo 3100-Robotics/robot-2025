@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -119,7 +120,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
     private final PIDController odometryAllign = new PIDController(3, 0, 0);
-    private final PIDController gamePieceAllign = new PIDController(0.1, 0, 0);
+    private final PIDController gamePieceAllign = new PIDController(0.15, 0, 0);
     private final SwerveRequest.ApplyFieldSpeeds alignRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.RobotCentric collectRequest = new SwerveRequest.RobotCentric();
 
@@ -268,16 +269,20 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                 })).until(odometryAllign::atSetpoint);
     }
 
-    public Command driveToGamePiece(Supplier<Optional<PhotonPipelineResult>> visionData, Trigger runUntil, String side) {
+    public Command driveToGamePiece(Supplier<List<PhotonPipelineResult>> visionData, Trigger runUntil, String side) {
         return run(() -> {
-            Optional<PhotonPipelineResult> results = visionData.get();
-            if (results.isPresent()) {
-                // System.out.println(results.get().getBestTarget().getYaw());
-                double speed = gamePieceAllign.calculate(results.get().getBestTarget().getYaw());
-                // System.out.println(speed);
-                setControl(collectRequest
-                    .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0.5), speed))
-                    .withVelocityY(1*(side == "left" ? 1 : -1)));
+            List<PhotonPipelineResult> results = visionData.get();
+            if (!results.isEmpty()) {
+                for (PhotonPipelineResult result : results) {
+                    if (result.hasTargets()) {
+                        // System.out.println(results.get().getBestTarget().getYaw());
+                        double speed = gamePieceAllign.calculate(result.getBestTarget().getYaw());
+                        // System.out.println(speed);
+                        setControl(collectRequest
+                            .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0.75), speed))
+                            .withVelocityY(1*(side == "left" ? 1.5 : -1.5)));
+                    }
+                }
             }
         }).until(runUntil)
             .andThen(applyRequest(() -> collectRequest.withVelocityX(0).withVelocityY(0)));
