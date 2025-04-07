@@ -103,7 +103,7 @@ public class Elevator extends SubsystemBase {
         atZero = new Trigger(() -> !bottomLimit.get());
         atZero.onTrue(Commands.runOnce(() -> {
             elevatorMotor1.setPosition(0);
-            elevatorMotor2.setPosition(0);}));
+            elevatorMotor2.setPosition(0);}).ignoringDisable(true));
         // elevatorMotor1.setPosition(0);
         // if (Utils.isSimulation()) {
         //     elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
@@ -170,6 +170,10 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atSetpoint() {
         return atSetpoint;
+    }
+
+    public Trigger atBottom() {
+        return atZero;
     }
 
     public double getHeight() {

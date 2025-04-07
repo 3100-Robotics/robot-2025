@@ -18,7 +18,7 @@
   "waypoints":[
     {"x":{"exp":"score.x", "val":7.468069076538086}, "y":{"exp":"score.y", "val":4.934473514556885}, "heading":{"exp":"score.heading", "val":-1.5707963267948966}, "intervals":33, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"5.599560737609863 m", "val":5.599560737609863}, "y":{"exp":"5.510958671569824 m", "val":5.510958671569824}, "heading":{"exp":"algae2.heading", "val":-0.5383008405304598}, "intervals":13, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"algae2.x", "val":4.888713073730469}, "y":{"exp":"algae2.y", "val":5.152268409729004}, "heading":{"exp":"algae2.heading", "val":-0.5383008405304598}, "intervals":60, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"algae2.x", "val":4.988713073730469}, "y":{"exp":"algae2.y", "val":5.152268409729004}, "heading":{"exp":"algae2.heading", "val":-0.5383008405304598}, "intervals":60, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

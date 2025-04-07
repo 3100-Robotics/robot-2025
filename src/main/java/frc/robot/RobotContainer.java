@@ -101,7 +101,7 @@ public class RobotContainer {
             superstructure.goToPos(scoringPos, side),
             algae.set(-0.5),
             Commands.waitSeconds(0.1),
-            algae.set(0.5),
+            algae.set(0.68),
             Commands.waitSeconds(0.5),
             algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
@@ -363,9 +363,11 @@ public class RobotContainer {
         // driverJoystick.a().onTrue(climber.goToPos(0)); unused at the moment
         // driverJoystick.b().onTrue(climber.goToPos(3));
 
-        coDriverJoystick.povRight().onTrue(Commands.parallel(
+        coDriverJoystick.povRight().onTrue(Commands.sequence(
+            algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
-            algae.set(0)));
+            superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
+            superstructure.goToPos(States.resting, "neigher")));
 
         ///////////
         // ALGAE //
