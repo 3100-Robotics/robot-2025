@@ -99,10 +99,21 @@ public class RobotContainer {
         return Commands.sequence( 
             protectionArms.set(side),
             superstructure.goToPos(scoringPos, side),
-            algae.set(-0.5),
-            Commands.waitSeconds(0.1),
+            Commands.waitSeconds(0.05),
             algae.set(0.68),
-            Commands.waitSeconds(0.5),
+            Commands.waitSeconds(0.4),
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"),
+            protectionArms.restArm());
+    }
+
+    public Command scoreAlgaeAuto(String side) {
+        return Commands.sequence( 
+            protectionArms.set(side),
+            superstructure.goToPos(States.algaeToBardge, side),
+            Commands.waitSeconds(0.05),
+            algae.set(1),
+            Commands.waitSeconds(0.35),
             algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
             protectionArms.restArm());
@@ -232,12 +243,6 @@ public class RobotContainer {
                 Commands.waitUntil(algae.limitHit()),
                 algae1ToScore.resetOdometry(),
                 algae1ToScore.spawnCmd())));
-        
-        // TODO: if waiting untill I have an algae doesn't work uncomment this
-        // Commands.sequence(
-        //         collectAlgae(States.algaeFromReefLow, "right"),
-        //         algae1ToScore.resetOdometry(),
-        //         algae1ToScore.spawnCmd()));
 
         algae1ToScore.done().onTrue(Commands.sequence(
                 Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
@@ -245,12 +250,6 @@ public class RobotContainer {
                 // Commands.waitUntil(superstructure.atSetpoint()),
                 // scoreAlgae(States.algaeToBardge, "left"),
                 scoreToAlgae2.spawnCmd()));
-
-        // TODO: if waiting untill I have an algae doesn't work uncomment this
-        // scoreToAlgae2.done().onTrue(Commands.sequence(
-        //     collectAlgae(States.algaeFromReefHigh, "right"),
-        //     algae2ToScore.resetOdometry(),
-        //     algae2ToScore.spawnCmd()));
 
         scoreToAlgae2.done().onTrue(Commands.parallel(
             collectAlgae(States.algaeFromReefHigh, "right"),
@@ -269,6 +268,69 @@ public class RobotContainer {
         scoreToAlgae3.done().onTrue(Commands.sequence(
             collectAlgae(States.algaeFromReefHigh, "right")
         ));
+
+        return routine;
+    }
+
+    public AutoRoutine score3Algae() {
+        AutoRoutine routine = autoFactory.newRoutine("2 algae");
+        AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
+        AutoTrajectory algae1ToScore = routine.trajectory("algae1-score");
+        AutoTrajectory scoreToAlgae2 = routine.trajectory("score-algae2");
+        AutoTrajectory algae2ToScore = routine.trajectory("algae2-score");
+        AutoTrajectory scoreToAlgae3 = routine.trajectory("score-algae3");
+        AutoTrajectory algae3ToScore = routine.trajectory("algae3-score");
+
+        algae1ToScore.atTimeBeforeEnd(1).onTrue(scoreAlgaeAuto("left"));
+        algae2ToScore.atTimeBeforeEnd(1).onTrue(scoreAlgaeAuto("left"));
+        algae3ToScore.atTimeBeforeEnd(1).onTrue(scoreAlgaeAuto("left"));
+
+        routine.active().onTrue(Commands.sequence(
+                startToAlgae1.resetOdometry(),
+                startToAlgae1.cmd()));
+
+        startToAlgae1.done().onTrue(Commands.parallel(
+            Commands.sequence(
+                algae.set(-1),
+                superstructure.goToPos(States.algaeFromReefLow, "right").until(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()),
+                algae.set(0)),
+            Commands.sequence(
+                Commands.waitUntil(algae.limitHit()),
+                algae1ToScore.resetOdometry(),
+                algae1ToScore.spawnCmd())));
+
+        algae1ToScore.done().onTrue(Commands.sequence(
+                Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
+                Commands.waitSeconds(0.5),
+                scoreToAlgae2.spawnCmd()));
+
+        scoreToAlgae2.done().onTrue(Commands.parallel(
+            Commands.sequence(
+                algae.set(-1),
+                superstructure.goToPos(States.algaeFromReefHigh, "right").until(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()),
+                algae.set(0)),
+            Commands.sequence(
+                Commands.waitUntil(algae.limitHit()),
+                algae2ToScore.resetOdometry(),
+                algae2ToScore.spawnCmd())));
+
+        algae2ToScore.done().onTrue(Commands.sequence(
+            Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
+            Commands.waitSeconds(0.5),
+            scoreToAlgae3.spawnCmd()));
+
+        scoreToAlgae3.done().onTrue(Commands.parallel(
+            Commands.sequence(
+                algae.set(-1),
+                superstructure.goToPos(States.algaeFromReefHigh, "right").until(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()),
+                algae.set(0)),
+            Commands.sequence(
+                Commands.waitUntil(algae.limitHit()),
+                algae3ToScore.resetOdometry(),
+                algae3ToScore.spawnCmd())));
 
         return routine;
     }
