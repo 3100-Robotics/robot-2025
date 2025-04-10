@@ -120,7 +120,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
     private final PIDController odometryAllign = new PIDController(3, 0, 0);
-    private final PIDController gamePieceAllign = new PIDController(0.15, 0, 0);
+    private final PIDController gamePieceAllign = new PIDController(0.2, 0, 0);
     private final SwerveRequest.ApplyFieldSpeeds alignRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.RobotCentric collectRequest = new SwerveRequest.RobotCentric();
 
@@ -279,8 +279,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                         double speed = gamePieceAllign.calculate(result.getBestTarget().getYaw());
                         // System.out.println(speed);
                         setControl(collectRequest
-                            .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0.75), speed))
-                            .withVelocityY(1*(side == "left" ? 1.5 : -1.5)));
+                            .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 1.5), speed))
+                            .withVelocityY(1*(side == "left" ? 1.75 : -1.75)));
                     }
                 }
             }

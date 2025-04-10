@@ -65,8 +65,8 @@ public class Elevator extends SubsystemBase {
         .withFeedback(new FeedbackConfigs()
             .withSensorToMechanismRatio(gearRatio))
         .withMotionMagic(new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(9)
-            .withMotionMagicAcceleration(8));
+            .withMotionMagicCruiseVelocity(12)
+            .withMotionMagicAcceleration(11));
 
 
     private TalonFX elevatorMotor1 = new TalonFX(elevatorMotor1ID);

@@ -11,8 +11,9 @@ public class Constants {
             algaeFromGround(-0.0702, 0.3, true), // has left/right
             algaeFromLollipop(0.05, 0, false), // has left/right
             algaeFromReefLow(0.14, 0.06, false), // has left/right
-            algaeFromReefHigh(0.15, 0.45, 0.1, false), // has left/right
+            algaeFromReefHigh(0.15, 0.45, 0.01, false), // has left/right
             algaeToBardge(0.15, 1.55, true), // has left/right 0.1674722
+            algaeToBardgeAuto(0.1, 1.65, 1, false),
             algaeToProcessor(-0.07, 0.59, true), // has left/right 0.000, 0.19 //// -0.07, 0.49
             coralFromGround(-0.025, 0.14, true), // no left/right
             coralFromHp(0.2, 0.18, false), // no left/right
@@ -47,9 +48,10 @@ public class Constants {
         static {
             allowedToFroms.put(States.algaeFromGround, List.of(States.resting, States.coralFromGround, States.algaeFromLollipop));
             allowedToFroms.put(States.algaeFromLollipop, List.of(States.resting, States.algaeFromGround, States.coralFromGround));
-            allowedToFroms.put(States.algaeFromReefHigh, List.of(States.resting));
+            allowedToFroms.put(States.algaeFromReefHigh, List.of(States.resting, States.algaeToBardgeAuto));
             allowedToFroms.put(States.algaeFromReefLow, List.of(States.resting, States.coralToL1));
             allowedToFroms.put(States.algaeToBardge, List.of(States.resting));
+            allowedToFroms.put(States.algaeToBardgeAuto, List.of(States.resting));
             allowedToFroms.put(States.algaeToProcessor, List.of(States.resting));
             allowedToFroms.put(States.coralFromGround, List.of(States.resting, States.algaeFromGround, States.algaeFromLollipop));
             allowedToFroms.put(States.coralFromHp, List.of(States.resting));
