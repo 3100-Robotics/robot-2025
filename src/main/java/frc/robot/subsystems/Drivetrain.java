@@ -144,7 +144,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         }
         headingController.enableContinuousInput(-Math.PI, Math.PI);
 
-        odometryAllign.setTolerance(0.1);
+        odometryAllign.setTolerance(0.05);
     }
 
     /**
@@ -218,11 +218,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
 
         // Apply the generated speeds
-//        setControl(new SwerveRequest.FieldCentric()
-//                .withVelocityX(speeds.vxMetersPerSecond)
-//                .withVelocityY(speeds.vyMetersPerSecond)
-//                .withRotationalRate(speeds.omegaRadiansPerSecond)
-//                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity));
 
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
     }
@@ -275,9 +270,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
             if (!results.isEmpty()) {
                 for (PhotonPipelineResult result : results) {
                     if (result.hasTargets()) {
-                        // System.out.println(results.get().getBestTarget().getYaw());
                         double speed = gamePieceAllign.calculate(result.getBestTarget().getYaw());
-                        // System.out.println(speed);
                         setControl(collectRequest
                             .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 1.5), speed))
                             .withVelocityY(1*(side == "left" ? 1.75 : -1.75)));

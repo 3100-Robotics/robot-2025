@@ -47,7 +47,6 @@ public class Superstructure extends SubsystemBase {
         // System.out.println(arm.getPosition());
         elevatorMech.setLength(elevator.getHeight());
         armMech.setAngle(Units.rotationsToDegrees(arm.getPosition())-90);
-        SmartDashboard.putNumber("arm pos", Units.rotationsToDegrees(arm.getPosition()));
         SmartDashboard.putString("elevator state", getState().name());
     }
 
@@ -56,27 +55,27 @@ public class Superstructure extends SubsystemBase {
         Supplier<Command> goToStatic = () -> Commands.sequence(
                 Commands.runOnce(() -> currentState=state),
                 Commands.parallel(
-                    elevator.goToPos(States.resting.elevatorHeight1),
-                    arm.goToPos(States.resting.armAngle1)));
+                    elevator.goToPos(States.resting.elevatorHeight),
+                    arm.goToPos(States.resting.armAngle)));
 
-        Supplier<Command> goToElevatorFirst1 = () -> Commands.sequence(
+        Supplier<Command> goToElevatorFirst = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
-            elevator.goToPos(state.elevatorHeight1),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1));
+            elevator.goToPos(state.elevatorHeight),
+            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle));
 
         Supplier<Command> goToArmDelayed = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
             Commands.parallel(
-                elevator.goToPos(state.elevatorHeight1),
+                elevator.goToPos(state.elevatorHeight),
                 Commands.sequence(
                     Commands.waitUntil(() -> elevator.getHeight() >= state.elevatorHeightTrigger),
-                    arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1))));
+                    arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle))));
 
-        Supplier<Command> goTo1 = () -> Commands.sequence(
+        Supplier<Command> goTo = () -> Commands.sequence(
             Commands.runOnce(() -> currentState=state),
             Commands.parallel(
-            elevator.goToPos(state.elevatorHeight1),
-            arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle1 : state.armAngle1)));
+                elevator.goToPos(state.elevatorHeight),
+                arm.goToPos(leftRight.equals("right") ? 0.478-state.armAngle : state.armAngle)));
         
         if (superstructureConstants.allowedToFroms.get(currentState).contains(state) || currentState.equals(States.resting) || currentState.equals(state)) {
             yesGoToStatic = false;
@@ -84,8 +83,8 @@ public class Superstructure extends SubsystemBase {
 
         return Commands.sequence(
             yesGoToStatic ? goToStatic.get() : Commands.none(),
-            (state.elevatorFirst1 ? goToElevatorFirst1.get() : 
-            !(state.elevatorHeightTrigger == state.elevatorHeight1) ? goToArmDelayed.get() : goTo1.get()));
+            (state.elevatorFirst ? goToElevatorFirst.get() : 
+            !(state.elevatorHeightTrigger == state.elevatorHeight) ? goToArmDelayed.get() : goTo.get()));
     }
 
     public Command goToPos(States desiredState, String side) {

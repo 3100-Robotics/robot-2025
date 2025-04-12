@@ -58,13 +58,6 @@ public class Arm extends SubsystemBase {
             .withKP(30)
             .withKG(0.42)
             .withKD(0.2)
-            // .withKP(63.093) // 10
-            // .withKI(0)
-            // .withKD(30.827)
-            // .withKG(0.72337)
-            // .withKS(0)
-            // .withKV(7.181)
-            // .withKA(9.4905)
             .withGravityType(GravityTypeValue.Arm_Cosine))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
@@ -72,7 +65,6 @@ public class Arm extends SubsystemBase {
             .withForwardSoftLimitThreshold(0)
             .withForwardSoftLimitEnable(false))
         .withMotionMagic(new MotionMagicConfigs());
-            // .withMotionMagicCruiseVelocity(6));
 
 
     private TalonFX pivotMotor = new TalonFX(pivotMotorID);
@@ -106,20 +98,12 @@ public class Arm extends SubsystemBase {
         pivotMotor.getConfigurator().apply(motorConfigs);
 
         atSetpoint = new Trigger(() -> Math.abs(pivotMotor.getPosition().getValueAsDouble() - setpoint) < 0.01);
-        // pivotEncoder.setPosition(0);
-        // pivotMotor.setPosition(0);
-
-        if (Utils.isSimulation()) {
-//            pivotMotor.setPosition(0.25);
-//            pivotEncoder.setPosition(0.25);
-//            pivotEncoder.getSimState().setRawPosition(0.25);
-//            armSim.setState(Math.PI/2, 0);
-        }
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("arm setpoint", setpoint);
+        SmartDashboard.putNumber("arm pos", pivotMotor.getPosition().getValueAsDouble());
     }
 
     @Override
@@ -162,7 +146,6 @@ public class Arm extends SubsystemBase {
 
     public Command goToPos(double pos) {
         return this.run(() -> {
-            // System.out.println("arm has been told to move!");
             setpoint = pos;
             pivotMotor.setControl(new MotionMagicExpoVoltage(pos));})
             .until(atSetpoint);

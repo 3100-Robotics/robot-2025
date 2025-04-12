@@ -21,25 +21,25 @@ public class Constants {
             rezeroElevator(0.24, -0.1, false), //no left/right
             resting(0.24, 0.015, false);
     
-            public double armAngle1;
-            public double elevatorHeight1;
+            public double armAngle;
+            public double elevatorHeight;
             public double elevatorHeightTrigger;
     
-            public Boolean elevatorFirst1;
+            public Boolean elevatorFirst;
     
     
             States(double angle, double height, Boolean elevatorFirst) {
-                armAngle1 = angle;
-                elevatorHeight1 = height;
+                armAngle = angle;
+                elevatorHeight = height;
                 elevatorHeightTrigger = height;
-                elevatorFirst1 = elevatorFirst;
+                this.elevatorFirst = elevatorFirst;
             }
     
-            States(double angle1, double height1, double armTriggerHeight, Boolean elevatorFirstOne) {
-                armAngle1 = angle1;
-                elevatorHeight1 = height1;
+            States(double angle, double height, double armTriggerHeight, Boolean elevatorFirstOne) {
+                armAngle = angle;
+                elevatorHeight = height;
                 elevatorHeightTrigger = armTriggerHeight;
-                elevatorFirst1 = elevatorFirstOne;
+                elevatorFirst = elevatorFirstOne;
             }
         }
 

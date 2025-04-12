@@ -27,14 +27,10 @@ public class Climber extends SubsystemBase {
 
     private PIDController angleController = new PIDController(0.3, 0, 0);
 
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("climber torque", winch.getOutputCurrent());
-    }
-
     public Climber () {
         winch.configure(config, null, null);
     }
+
     public Command setSpeed(DoubleSupplier speed) {
         return run(() -> winch.set(MathUtil.applyDeadband(speed.getAsDouble(), 0.07)));
 
@@ -42,7 +38,7 @@ public class Climber extends SubsystemBase {
 
     public Command goToPos(double pos) {
         return run(() -> {
-            angleController.setSetpoint(pos*9);
+            angleController.setSetpoint(pos*25);
             winch.setVoltage(angleController.calculate(winch.getEncoder().getPosition()));
         }).until(angleController::atSetpoint);
     }

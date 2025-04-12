@@ -54,8 +54,6 @@ public class Elevator extends SubsystemBase {
         .withSlot0(new Slot0Configs()
             .withKP(60)
             .withKG(0.36)
-            // .withKI(0.1)
-            // .withKP(61.207) // 61.207
             .withGravityType(GravityTypeValue.Elevator_Static))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)
@@ -104,10 +102,6 @@ public class Elevator extends SubsystemBase {
         atZero.onTrue(Commands.runOnce(() -> {
             elevatorMotor1.setPosition(0);
             elevatorMotor2.setPosition(0);}).ignoringDisable(true));
-        // elevatorMotor1.setPosition(0);
-        // if (Utils.isSimulation()) {
-        //     elevatorMotor1.getSimState().Orientation = ChassisReference.Clockwise_Positive;
-        // }
     }
 
     @Override
@@ -124,7 +118,6 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // System.out.println(setpoint);`
         var talonFXSim = elevatorMotor1.getSimState();
 
         // set the supply voltage of the TalonFX
@@ -141,7 +134,6 @@ public class Elevator extends SubsystemBase {
         // apply the new rotor position and velocity to the TalonFX;
         // note that this is rotor position/velocity (before gear ratio), but
         // DCMotorSim returns mechanism position/velocity (after gear ratio)
-//        System.out.println(elevatorSim.getPositionMeters());
         talonFXSim.setRawRotorPosition(elevatorSim.getPositionMeters()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
         talonFXSim.setRotorVelocity(elevatorSim.getVelocityMetersPerSecond()*gearRatio* carriageRatio /(sprocketRadius *2*Math.PI));
     }
@@ -155,17 +147,15 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command set(double speed) {
-        return this.run(() -> elevatorMotor1.set(speed));
+        return run(() -> elevatorMotor1.set(speed));
     }
 
     public Command goToPos(double pos) {
-        return this.run(() -> {
+        return run(() -> {
             double rotations = pos / (Math.PI * 2 * sprocketRadius * carriageRatio);
             setpoint = rotations;
             elevatorMotor1.setControl(new MotionMagicVoltage(rotations));
-            // elevatorMotor1.setControl(new MotionMagicExpoVoltage(rotations));
-        })
-            .until(atSetpoint);
+        }).until(atSetpoint);
     }
 
     public Trigger atSetpoint() {

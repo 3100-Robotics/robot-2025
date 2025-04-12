@@ -35,10 +35,7 @@ public class Vision {
         camera = new PhotonCamera(kCameraName);
 
         photonEstimator = new PhotonPoseEstimator(kTagLayout, 
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
-                // new PhotonPoseEstimator(
-                //     AprilTagFields.k2025ReefscapeWelded,
-                //     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
         photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
         // ----- Simulation
@@ -79,22 +76,17 @@ public class Vision {
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d Robotpose) {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         if (!results.isEmpty()) {
-            // if (results.get()
-            var visionEst = photonEstimator.update(results.get(0));
-            double latestTimestamp = results.get(0).getTimestampSeconds();
-            boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
-            // if (Robot.isSimulation()) {
-            //     visionEst.ifPresentOrElse(
-            //             est ->
-            //                     getSimDebugField()
-            //                             .getObject("VisionEstimation")
-            //                             .setPose(est.estimatedPose.toPose2d()),
-            //             () -> {
-            //                 if (newResult) getSimDebugField().getObject("VisionEstimation").setPoses();
-            //             });
-            // }
-            if (newResult) lastEstTimestamp = latestTimestamp;
-            return visionEst;
+            for (PhotonPipelineResult result:results) {
+                if (result.hasTargets()) {
+                    if (result.getBestTarget().getBestCameraToTarget().getTranslation().toTranslation2d().getDistance(Robotpose.getTranslation()) < 4) { 
+                        var visionEst = photonEstimator.update(result);
+                        double latestTimestamp = results.get(0).getTimestampSeconds();
+                        boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
+                        if (newResult) lastEstTimestamp = latestTimestamp;
+                        return visionEst;
+                    }
+                }
+            }
         }
         return Optional.empty();
     }
