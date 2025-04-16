@@ -103,20 +103,18 @@ public class RobotContainer {
             algae.set(0.68),
             Commands.waitSeconds(0.4),
             algae.set(0),
-            superstructure.goToPos(States.resting, "neither"),
-            protectionArms.restArm());
+            protectionArms.restArm(),
+            superstructure.goToPos(States.resting, "neither"));
     }
 
     public Command scoreAlgaeAuto(String side) {
-        return Commands.sequence( 
-            protectionArms.set(side),
+        return Commands.sequence(
             superstructure.goToPos(States.algaeToBardgeAuto, side),
             Commands.waitSeconds(0.05),
             algae.set(0.9),
             Commands.waitSeconds(0.4),
             algae.set(0),
-            superstructure.goToPos(States.resting, "neither"),
-            protectionArms.restArm());
+            superstructure.goToPos(States.resting, "neither"));
     }
 
     public Command scoreAlgaeProcessor(String side) {
@@ -440,6 +438,10 @@ public class RobotContainer {
             superstructure.goToPos(States.resting, "neither"),
             superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
             superstructure.goToPos(States.resting, "neigher")));
+
+        driverJoystick.povLeft().onTrue(protectionArms.set("left"));
+        driverJoystick.povRight().onTrue(protectionArms.set("right"));
+        driverJoystick.povDown().onTrue(protectionArms.restArm());
 
         ///////////
         // ALGAE //

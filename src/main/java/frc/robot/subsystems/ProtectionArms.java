@@ -13,27 +13,9 @@ public class ProtectionArms extends SubsystemBase {
     private Servo motorRight = new Servo(8);
 
     private double leftrest = 95;
-    private double rightrest = 0;
+    private double rightrest = 95;
     private double leftdown = 0;
-    private double rightdown = 60;
-
-    public ProtectionArms() {
-        SmartDashboard.putNumber("leftrest", 0);
-        SmartDashboard.putNumber("rightrest", 0);
-        SmartDashboard.putNumber("leftdown", 0);
-        SmartDashboard.putNumber("rightdown", 0);
-    }
-
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("armleftangle", motorLeft.getAngle());
-        SmartDashboard.putNumber("armrightangle", motorRight.getAngle());
-
-        // leftrest = SmartDashboard.getNumber("leftrest", 0);
-        // rightrest = SmartDashboard.getNumber("rightrest", 0);
-        // leftdown = SmartDashboard.getNumber("leftdown", 0);
-        // rightdown = SmartDashboard.getNumber("rightdown", 0);
-    }
+    private double rightdown = 160;
 
     public Command restArm() {
         return Commands.runOnce(() -> {
