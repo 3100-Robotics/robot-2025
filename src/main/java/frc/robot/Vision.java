@@ -78,13 +78,13 @@ public class Vision {
         if (!results.isEmpty()) {
             for (PhotonPipelineResult result:results) {
                 if (result.hasTargets()) {
-                    if (result.getBestTarget().getBestCameraToTarget().getTranslation().toTranslation2d().getDistance(Robotpose.getTranslation()) < 4) { 
+                    // if (result.getBestTarget().getBestCameraToTarget().getTranslation().toTranslation2d().getDistance(Robotpose.getTranslation()) < 4) { 
                         var visionEst = photonEstimator.update(result);
                         double latestTimestamp = results.get(0).getTimestampSeconds();
                         boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
                         if (newResult) lastEstTimestamp = latestTimestamp;
                         return visionEst;
-                    }
+                    // }
                 }
             }
         }

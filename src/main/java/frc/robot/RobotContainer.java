@@ -307,8 +307,8 @@ public class RobotContainer {
             superstructure.goToPos(States.resting, "neither")));
 
         algae1ToScore.atTimeBeforeEnd(0.8).onTrue(scoreAlgaeAuto("left"));
-        algae2ToScore.atTimeBeforeEnd(0.75).onTrue(scoreAlgaeAuto("left"));
-        algae3ToScore.atTimeBeforeEnd(0.75).onTrue(scoreAlgaeAuto("left"));
+        algae2ToScore.atTimeBeforeEnd(0.4).onTrue(scoreAlgaeAuto("left"));
+        // algae3ToScore.atTimeBeforeEnd(0.75).onTrue(scoreAlgaeAuto("left"));
 
         routine.active().onTrue(Commands.sequence(
                 startToAlgae1.resetOdometry(),

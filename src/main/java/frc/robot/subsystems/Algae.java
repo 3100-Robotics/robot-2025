@@ -27,7 +27,7 @@ public class Algae extends SubsystemBase {
 
     private Trigger currentTrigger; 
     private Trigger limitTrigger;
-    private LinearFilter currentFilter = LinearFilter.movingAverage(40);
+    private LinearFilter currentFilter = LinearFilter.movingAverage(30);
     
     public Algae() {
         motor.configure(config, null, null);
