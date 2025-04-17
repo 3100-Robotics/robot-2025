@@ -64,7 +64,8 @@ public class Arm extends SubsystemBase {
             .withReverseSoftLimitEnable(false)
             .withForwardSoftLimitThreshold(0)
             .withForwardSoftLimitEnable(false))
-        .withMotionMagic(new MotionMagicConfigs());
+        .withMotionMagic(new MotionMagicConfigs()
+            .withMotionMagicAcceleration(1));
 
 
     private TalonFX pivotMotor = new TalonFX(pivotMotorID);
