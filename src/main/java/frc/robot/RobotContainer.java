@@ -315,7 +315,7 @@ public class RobotContainer {
                 startToAlgae1.spawnCmd()));
 
         startToAlgae1.done().onTrue(Commands.sequence(
-                Commands.waitUntil(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()).withTimeout(3),
                 algae1ToScore.resetOdometry(),
                 algae1ToScore.spawnCmd()));
 
@@ -325,7 +325,7 @@ public class RobotContainer {
                 scoreToAlgae2.spawnCmd()));
 
         scoreToAlgae2.done().onTrue(Commands.sequence(
-                Commands.waitUntil(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()).withTimeout(3),
                 algae2ToScore.resetOdometry(),
                 algae2ToScore.spawnCmd()));
 
@@ -335,7 +335,7 @@ public class RobotContainer {
             scoreToAlgae3.spawnCmd()));
 
         scoreToAlgae3.done().onTrue(Commands.sequence(
-                Commands.waitUntil(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()).withTimeout(3),
                 algae3ToScore.resetOdometry(),
                 algae3ToScore.spawnCmd()));
 
