@@ -53,7 +53,7 @@ public class Elevator extends SubsystemBase {
             .withNeutralMode(NeutralModeValue.Brake))
         .withSlot0(new Slot0Configs()
             .withKP(60)
-            .withKG(0.36)
+            .withKG(0.4)
             .withGravityType(GravityTypeValue.Elevator_Static))
         .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitThreshold(0)

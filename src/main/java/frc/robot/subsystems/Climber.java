@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,10 +27,16 @@ public class Climber extends SubsystemBase {
 
     private SparkMax winch = new SparkMax(motorID, MotorType.kBrushless);
 
-    private PIDController angleController = new PIDController(0.3, 0, 0);
+    private PIDController angleController = new PIDController(0.6, 0, 0); // 0.3
 
     public Climber () {
         winch.configure(config, null, null);
+        angleController.setTolerance(1);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("climper pos", winch.getEncoder().getPosition());
     }
 
     public Command setSpeed(DoubleSupplier speed) {
@@ -37,9 +45,11 @@ public class Climber extends SubsystemBase {
     }
 
     public Command goToPos(double pos) {
-        return run(() -> {
-            angleController.setSetpoint(pos*25);
-            winch.setVoltage(angleController.calculate(winch.getEncoder().getPosition()));
-        }).until(angleController::atSetpoint);
+        return runOnce(() -> angleController.setSetpoint(pos*25)).andThen(run(() -> {
+            double speed = angleController.calculate(winch.getEncoder().getPosition());
+            SmartDashboard.putNumber("climber output", speed);
+            winch.setVoltage(
+                speed + Math.copySign(0.5, speed));
+        })).until(angleController::atSetpoint);
     }
 }
