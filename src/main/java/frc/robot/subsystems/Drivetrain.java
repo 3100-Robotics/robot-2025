@@ -24,6 +24,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -120,7 +121,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
     private final PIDController odometryAllign = new PIDController(3, 0, 0);
-    private final PIDController gamePieceAllign = new PIDController(0.2, 0, 0);
+    private final PIDController gamePieceAllign = new PIDController(0.1, 0, 0.005);
     private final SwerveRequest.ApplyFieldSpeeds alignRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.RobotCentric collectRequest = new SwerveRequest.RobotCentric();
 
@@ -271,9 +272,12 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                 for (PhotonPipelineResult result : results) {
                     if (result.hasTargets()) {
                         double speed = gamePieceAllign.calculate(result.getBestTarget().getYaw());
+                        SmartDashboard.putNumber("vision angle", result.getBestTarget().getYaw());
+                        SmartDashboard.putNumber("pid error", gamePieceAllign.getError());
                         setControl(collectRequest
-                            .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 1.5), speed))
-                            .withVelocityY(1*(side == "left" ? 1.75 : -1.75)));
+                            .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0), speed))
+                            .withVelocityY(2.5*(side == "left" ? 1 : -1)) // 2.25
+                            .withRotationalRate(speed));
                     }
                 }
             }
