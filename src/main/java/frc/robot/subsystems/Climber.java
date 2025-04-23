@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import java.util.function.DoubleSupplier;
 
@@ -29,9 +30,12 @@ public class Climber extends SubsystemBase {
 
     private PIDController angleController = new PIDController(0.6, 0, 0); // 0.3
 
+    private Trigger atSetpoint;
+
     public Climber () {
         winch.configure(config, null, null);
         angleController.setTolerance(1);
+        atSetpoint = new Trigger(angleController::atSetpoint);
     }
 
     @Override
@@ -49,7 +53,11 @@ public class Climber extends SubsystemBase {
             double speed = angleController.calculate(winch.getEncoder().getPosition());
             SmartDashboard.putNumber("climber output", speed);
             winch.setVoltage(
-                speed + Math.copySign(0.5, speed));
-        })).until(angleController::atSetpoint);
+                speed + 0.5);
+        }));
+    }
+
+    public Trigger atSetpoint() {
+        return atSetpoint;
     }
 }

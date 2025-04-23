@@ -44,8 +44,8 @@ public class Elevator extends SubsystemBase {
     private TalonFXConfiguration motorConfigs = new TalonFXConfiguration().
         withAudio(new AudioConfigs()
             .withBeepOnBoot(true)
-            .withBeepOnConfig(true)).
-        withCurrentLimits(new CurrentLimitsConfigs()
+            .withBeepOnConfig(true))
+        .withCurrentLimits(new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(40)
             .withSupplyCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs()

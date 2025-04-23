@@ -426,10 +426,12 @@ public class RobotContainer {
 
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 
-        driverJoystick.a().onTrue(Commands.sequence(
+        driverJoystick.a().onTrue(Commands.parallel(
             superstructure.goToPos(States.algaeFromLollipop, "right"),
-            climber.goToPos(8.1148)));
-        driverJoystick.b().onTrue(climber.goToPos(0.5));
+            Commands.sequence(
+                Commands.waitSeconds(0.25),
+                climber.goToPos(8.1148).until(climber.atSetpoint()))));
+        driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
 
         driverJoystick.y().whileTrue(drivetrain.allignToBarge());
 
