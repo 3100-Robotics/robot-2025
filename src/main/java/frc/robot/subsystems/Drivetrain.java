@@ -19,6 +19,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -121,7 +123,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
 
     private final PIDController odometryAllign = new PIDController(3, 0, 0);
-    private final PIDController gamePieceAllign = new PIDController(0.1, 0, 0.005);
+    private final PIDController gamePieceAllign = new PIDController(0.4, 0, 0.06);
+    private Boolean gamePieceCanDrive = false;
     private final SwerveRequest.ApplyFieldSpeeds alignRequest = new SwerveRequest.ApplyFieldSpeeds();
     private final SwerveRequest.RobotCentric collectRequest = new SwerveRequest.RobotCentric();
 
@@ -146,6 +149,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         headingController.enableContinuousInput(-Math.PI, Math.PI);
 
         odometryAllign.setTolerance(0.05);
+        gamePieceAllign.setTolerance(2);
     }
 
     /**
@@ -266,23 +270,33 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command driveToGamePiece(Supplier<List<PhotonPipelineResult>> visionData, Trigger runUntil, String side) {
-        return run(() -> {
-            List<PhotonPipelineResult> results = visionData.get();
-            if (!results.isEmpty()) {
-                for (PhotonPipelineResult result : results) {
-                    if (result.hasTargets()) {
-                        double speed = gamePieceAllign.calculate(result.getBestTarget().getYaw());
-                        SmartDashboard.putNumber("vision angle", result.getBestTarget().getYaw());
-                        SmartDashboard.putNumber("pid error", gamePieceAllign.getError());
-                        setControl(collectRequest
-                            .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0), speed))
-                            .withVelocityY(2.5*(side == "left" ? 1 : -1)) // 2.25
-                            .withRotationalRate(speed));
+        return runOnce(() -> {
+                gamePieceAllign.setSetpoint(getPigeon2().getYaw().getValueAsDouble());
+                gamePieceCanDrive = false;}).andThen(
+            run(() -> {
+                List<PhotonPipelineResult> results = visionData.get();
+                double forwardSpeed = 2.5;
+                if (!results.isEmpty()) {
+                    forwardSpeed = 2.75;
+                    for (PhotonPipelineResult result : results) {
+                        if (result.hasTargets()) {
+                            gamePieceCanDrive = true;
+                            gamePieceAllign.setSetpoint(getPigeon2().getYaw().getValueAsDouble() + result.getBestTarget().getYaw()*(side=="left" ? 1 : -1));
+                            SmartDashboard.putNumber("vision angle", result.getBestTarget().getYaw());
+                            SmartDashboard.putNumber("pid error", gamePieceAllign.getError());
+                            SmartDashboard.putNumber("num corners", result.getBestTarget().getDetectedCorners().toArray().length);
+                        }
                     }
                 }
-            }
-        }).until(runUntil)
-            .andThen(applyRequest(() -> collectRequest.withVelocityX(0).withVelocityY(0)));
+                if (gamePieceCanDrive) {
+                    double speed = gamePieceAllign.calculate(getPigeon2().getYaw().getValueAsDouble());
+                    setControl(collectRequest
+                                    .withVelocityX(Math.copySign(Math.min(Math.abs(speed), 0), speed))
+                                    .withVelocityY(forwardSpeed*(side == "left" ? 1 : -1)) // 2.75
+                                    .withRotationalRate(speed));
+                }
+            })).until(runUntil)
+                .andThen(applyRequest(() -> collectRequest.withVelocityX(0).withVelocityY(0)));
     }
 
     @Override
