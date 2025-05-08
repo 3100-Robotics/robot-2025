@@ -60,8 +60,8 @@ public class RobotContainer {
     public final Vision downCamera = new Vision("Down", new Transform3d(new Translation3d(
         Units.inchesToMeters(-9.25),
         Units.inchesToMeters(-10.401),
-        Units.inchesToMeters(11.25)),
-        new Rotation3d(0, Math.toRadians(-70), Math.toRadians(-90))));
+        Units.inchesToMeters(14.25)),
+        new Rotation3d(0, Math.toRadians(20), Math.toRadians(-90))));
 
     public final Vision gamePieceCamera = new Vision("up", new Transform3d());
 
