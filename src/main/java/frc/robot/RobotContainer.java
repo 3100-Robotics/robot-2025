@@ -307,7 +307,7 @@ public class RobotContainer {
             superstructure.goToPos(States.resting, "neither")));
 
         algae1ToScore.atTimeBeforeEnd(0.8).onTrue(scoreAlgaeAuto("left"));
-        algae2ToScore.atTimeBeforeEnd(0.4).onTrue(scoreAlgaeAuto("left"));
+        algae2ToScore.atTimeBeforeEnd(0.1).onTrue(scoreAlgaeAuto("left"));
         algae3ToScore.atTimeBeforeEnd(0.75).onTrue(scoreAlgaeAuto("left"));
 
         routine.active().onTrue(Commands.sequence(
@@ -315,7 +315,7 @@ public class RobotContainer {
                 startToAlgae1.spawnCmd()));
 
         startToAlgae1.done().onTrue(Commands.sequence(
-                Commands.waitUntil(algae.limitHit()).withTimeout(3),
+                Commands.waitUntil(algae.limitHit()).withTimeout(1.5),
                 algae1ToScore.resetOdometry(),
                 algae1ToScore.spawnCmd()));
 
@@ -325,7 +325,7 @@ public class RobotContainer {
                 scoreToAlgae2.spawnCmd()));
 
         scoreToAlgae2.done().onTrue(Commands.sequence(
-                Commands.waitUntil(algae.limitHit()).withTimeout(3),
+                Commands.waitUntil(algae.limitHit()).withTimeout(1.5),
                 algae2ToScore.resetOdometry(),
                 algae2ToScore.spawnCmd()));
 
@@ -335,7 +335,7 @@ public class RobotContainer {
             scoreToAlgae3.spawnCmd()));
 
         scoreToAlgae3.done().onTrue(Commands.sequence(
-                Commands.waitUntil(algae.limitHit()).withTimeout(3),
+                Commands.waitUntil(algae.limitHit()).withTimeout(1.5),
                 algae3ToScore.resetOdometry(),
                 algae3ToScore.spawnCmd()));
 
@@ -430,7 +430,7 @@ public class RobotContainer {
             superstructure.goToPos(States.algaeFromLollipop, "right"),
             Commands.sequence(
                 Commands.waitSeconds(0.25),
-                climber.goToPos(8.1148).until(climber.atSetpoint()))));
+                climber.goToPos(7.75).until(climber.atSetpoint()))));
         driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
 
         driverJoystick.y().whileTrue(drivetrain.allignToBarge());

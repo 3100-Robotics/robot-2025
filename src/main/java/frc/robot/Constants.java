@@ -18,7 +18,7 @@ public class Constants {
             coralFromGround(-0.025, 0.14, true), // no left/right
             coralFromHp(0.2, 0.18, false), // no left/right
             coralToL1(0.15, 0.01, false), // no left/right
-            rezeroElevator(0.24, -0.1, false), //no left/right
+            rezeroElevator(0.24, -1, false), //no left/right
             resting(0.24, 0.015, false);
     
             public double armAngle;
