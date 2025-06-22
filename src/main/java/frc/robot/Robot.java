@@ -18,7 +18,8 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
 
   public Robot() {
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer(isReal());
+
     addPeriodic(() -> {
       Optional<EstimatedRobotPose> pose = m_robotContainer.downCamera.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
       if (pose.isPresent()) {
@@ -74,7 +75,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    String s = "%s  %s  %s";
+    System.out.println(String.format(s, m_robotContainer.locengine.procSideLeft(), 
+    m_robotContainer.locengine.reefSideLeft(), 
+    m_robotContainer.locengine.bargeSideLeft()));
+  }
 
   @Override
   public void testExit() {}
