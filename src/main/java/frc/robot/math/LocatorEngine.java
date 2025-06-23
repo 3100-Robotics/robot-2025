@@ -25,7 +25,7 @@ import frc.robot.Constants;
 // jsonObject.put("reef_sides", reef_sides);
 
 
-// SmartDashboard.putString("even", jsonObject.toString());
+// SmartDashboard.putString("qdbpoints", jsonObject.toString());
 
 /* Takes robot pose and provide
     useful information regarding Reefscape's
@@ -53,9 +53,13 @@ import frc.robot.Constants;
 public class LocatorEngine {
     public Supplier<Pose2d> getRobotPose;
     public Supplier<Point> getRobotPositon = () -> new Point(getRobotPose.get().getX(), getRobotPose.get().getY());
+    public Supplier<Boolean> isRobotOnBlue = () -> (getRobotPositon.get().x < 8.75);
+
+    public Supplier<Point> reef_location = () -> isRobotOnBlue.get() ? Constants.LocationsFake.BLUE_REEF : Constants.LocationsFake.RED_REEF;
+    public Supplier<Point> getRobotNormalized = () -> getRobotPositon.get().sub(reef_location.get());
+
     public Supplier<Double> getRobotRotation = () -> getRobotPose.get().getRotation().getDegrees();
     public Supplier<Double> getRobotRotation360 = () -> getRobotRotation.get() < 0 ? getRobotRotation.get()+360 : getRobotRotation.get();
-    public Supplier<Boolean> isRobotOnBlue = () -> (getRobotPositon.get().x < 8.75);
 
     public Integer dirty = 0;
 
@@ -67,13 +71,14 @@ public class LocatorEngine {
         double rot = getRobotRotation360.get();
 
         // Which reef to localize against
-        Point reef_location = isRobotOnBlue.get() ? Constants.LocationsFake.BLUE_REEF : Constants.LocationsFake.RED_REEF;
+        // Point reef_location = isRobotOnBlue.get() ? Constants.LocationsFake.BLUE_REEF : Constants.LocationsFake.RED_REEF;
 
-        Point normalrobot = getRobotPositon.get().sub(reef_location); // Robot relative ot reaf
+        // Point normalrobot = getRobotPositon.get().sub(reef_location); // Robot relative ot reaf
+
         int sidecode = // TODO: Find an elagent way to document sidecodes
-            ((Point.isAleftB(normalrobot, Constants.LocationsFake.REEF_LEFT)?1:0)<<2) +
-            ((Point.isAleftB(normalrobot, Constants.LocationsFake.REEF_UP)?1:0)<<1) +
-            (Point.isAleftB(normalrobot, Constants.LocationsFake.REEF_RIGHT)?1:0);
+            ((Point.isAleftB(getRobotNormalized.get(), Constants.LocationsFake.REEF_LEFT)?1:0)<<2) +
+            ((Point.isAleftB(getRobotNormalized.get(), Constants.LocationsFake.REEF_UP)?1:0)<<1) +
+             (Point.isAleftB(getRobotNormalized.get(), Constants.LocationsFake.REEF_RIGHT)?1:0);
 
         Point sidevector = Constants.LocationsFake.SEVEN;
         switch (sidecode) {
