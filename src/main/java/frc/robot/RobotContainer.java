@@ -18,11 +18,11 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.superstructureConstants.States;
 import frc.robot.generated.TunerConstants;
@@ -59,9 +59,9 @@ public class RobotContainer {
         Units.inchesToMeters(14.25)),
         new Rotation3d(0, Math.toRadians(20), Math.toRadians(-90))));
 
-        public final Vision gamePieceCamera = new Vision("up", new Transform3d());
+    public final Vision gamePieceCamera = new Vision("up", new Transform3d());
 
-    private final CommandXboxController driverJoystick = new CommandXboxController(0);
+    private final CommandXboxController driverJoystick = new CommandXboxController(0); 
     private final CommandXboxController coDriverJoystick = new CommandXboxController(1);
 
     public final AutoChooser autoSlector = new AutoChooser();
@@ -70,7 +70,9 @@ public class RobotContainer {
 
     public LocatorEngine locengine = new LocatorEngine(()->drivetrain.getPos());
 
-    public RobotContainer(Boolean isreal) {
+    private String currentBinding = "normal";
+
+    public RobotContainer() {
         autoroutines = new AutoRoutines(this);
         configureBindings();
         configureAutonomous();
@@ -175,36 +177,25 @@ public class RobotContainer {
         autoSlector.select("score 3 algae");
     }
 
-    private void configureBindings() {
-        SmartDashboard.putString("binding", "normal");
-        SmartDashboard.getString("binding", "normal");
-        switch (SmartDashboard.getString("binding", "normal")) {
-            case "normal":
-                configureNormalBindings();
-                break;
-            case "sysid":
-                configureSysidBindings();
-                break;
-            case "even":
-                configureEvenBindings();
-                break;
-            default:
-                configureNormalBindings();
-        }
-    }
 
-    private void configureEvenBindings() {
+    private void bindDrive(boolean fieldcentric) {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
+                fieldcentric ?
                 drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) : 
+                driveRobotCentric.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+    }
 
+    private void bindClimber() {
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 
         // climber 
@@ -215,132 +206,72 @@ public class RobotContainer {
                 climber.goToPos(8.1148).until(climber.atSetpoint()))));
         
         driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
+    }
 
+    private void bindBargeAlign() {
         // barge alignment (not great)
         driverJoystick.y().whileTrue(drivetrain.allignToBarge());
+    }
 
+    private void bindAutoCollect() {
         // auto collect
         driverJoystick.x().and(driverJoystick.leftBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "left"));
         driverJoystick.x().and(driverJoystick.rightBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "right"));
 
+    }
+
+    private void bindIdle() {
         // idle
         coDriverJoystick.povRight().onTrue(Commands.sequence(
             algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
             superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
             superstructure.goToPos(States.resting, "neigher")));
+    }
 
-        
-        // driverJoystick.povLeft().onTrue(protectionArms.set("left"));
-        // driverJoystick.povRight().onTrue(protectionArms.set("right"));
-        // driverJoystick.povDown().onTrue(protectionArms.restArm());
 
-        ///////////
-        // ALGAE //
-        ///////////
+    private void configureBindings() {
+        // SmartDashboard.putString("binding", "normal");
+        // Trigger r = new Trigger(()->SmartDashboard.getString("binding", "normal") != currentBinding);
+        // r.onTrue(Commands.runOnce( () -> {
+        //     currentBinding = SmartDashboard.getString("binding", "normal");
+        //     System.out.println("Hi! 2");
+        // }));
+        switch (SmartDashboard.getString("binding", "normal")) {
+            case "sysid":
+                sysidBindings();
+                break;
+            case "even":
+                evenBindings();
+                break;
+            case "normal":default:
+                normalBindings();
+        }
+    }
 
-        driverJoystick.povUp().onTrue(Commands.sequence(
-            algae.set(-1),
-            Commands.waitUntil(algae.limitHit()),
-            algae.set(0)));
+    private void evenBindings() {
+        bindDrive(true);
+        bindClimber();
+        bindBargeAlign();
+        bindAutoCollect();
+        bindIdle();
 
-        // collection
-
-        // floor
-        // left
-        coDriverJoystick.a().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromGround, ()->"left"));
-        // right
-        coDriverJoystick.a().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromGround, ()->"right"));
-
-        // between l2 and l3
-        // left
-        coDriverJoystick.x().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromReefLow, ()->"left"));
-        // right
-        coDriverJoystick.x().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromReefLow, ()->"right"));
-
-        // between l3 and l4
-        // left
-        coDriverJoystick.y().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromReefHigh, ()->"left"));
-        // right
-        coDriverJoystick.y().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromReefHigh, ()->"right"));
-
-        // scoring
-
-        // processor
-        // left
-        coDriverJoystick.rightBumper().and(driverJoystick.leftBumper()).onTrue(scoreAlgaeProcessor(()->"left"));
-        // right
-        coDriverJoystick.rightBumper().and(driverJoystick.rightBumper()).onTrue(scoreAlgaeProcessor(()->"right"));
-
-        // barge
-        // left / left
-        coDriverJoystick.leftBumper().onTrue(scoreAlgae(States.algaeToBardge, ()->algaeSide()));
-
-        // lollipop
-        // left
-        coDriverJoystick.b().and(driverJoystick.leftBumper()).onTrue(collectAlgae(States.algaeFromLollipop, ()->"left"));
-        // right
-        coDriverJoystick.b().and(driverJoystick.rightBumper()).onTrue(collectAlgae(States.algaeFromLollipop, ()->"right"));
-
-        ///////////
-        // CORAL //
-        ///////////
-
-        coDriverJoystick.povDown().onTrue(collectCoral(States.coralFromGround));
-
-        coDriverJoystick.povLeft().onTrue(collectCoral(States.coralFromHp));
-
-        coDriverJoystick.povUp().onTrue(scoreCoral());
+        driverJoystick.x().onTrue(Commands.run(()->System.out.println("Test 0")));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    private void configureNormalBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
-
-        climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
-
-        // climber 
-        driverJoystick.a().onTrue(Commands.parallel(
-            superstructure.goToPos(States.algaeFromLollipop, "right"),
-            Commands.sequence(
-                Commands.waitSeconds(0.25),
-                climber.goToPos(8.1148).until(climber.atSetpoint()))));
-        
-        driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
-
-        // barge alignment (not great)
-        driverJoystick.y().whileTrue(drivetrain.allignToBarge());
-
-        // auto collect
-        driverJoystick.x().and(driverJoystick.leftBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "left"));
-        driverJoystick.x().and(driverJoystick.rightBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "right"));
-
-        // idle
-        coDriverJoystick.povRight().onTrue(Commands.sequence(
-            algae.set(0),
-            superstructure.goToPos(States.resting, "neither"),
-            superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
-            superstructure.goToPos(States.resting, "neigher")));
-
-        
-        // driverJoystick.povLeft().onTrue(protectionArms.set("left"));
-        // driverJoystick.povRight().onTrue(protectionArms.set("right"));
-        // driverJoystick.povDown().onTrue(protectionArms.restArm());
+    private void normalBindings() {
+        bindDrive(true);
+        bindClimber();
+        bindBargeAlign();
+        bindAutoCollect();
+        bindIdle();
 
         ///////////
         // ALGAE //
         ///////////
-
+        
         driverJoystick.povUp().onTrue(Commands.sequence(
             algae.set(-1),
             Commands.waitUntil(algae.limitHit()),
@@ -399,7 +330,7 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    private void configureSysidBindings() {
+    private void sysidBindings() {
         coDriverJoystick.leftBumper().onTrue(arm.goToPos(0.25));
         coDriverJoystick.rightBumper().onTrue(elevator.goToPos(0.75));
 
@@ -425,8 +356,7 @@ public class RobotContainer {
         driverJoystick.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
 
         driverJoystick.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-    
-    
+
     }
 
 

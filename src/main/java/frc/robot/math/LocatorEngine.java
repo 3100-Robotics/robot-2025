@@ -4,9 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 
 // double rcord[] = {normalrobot.x, normalrobot.y};
 // double vec[] = {Math.cos(Math.toRadians(three60rot)), Math.sin(Math.toRadians(three60rot))};
@@ -126,9 +124,9 @@ public class LocatorEngine {
 
         switch (((robotnearblueproc?1:0)<<1) + (sidepointingblueds?1:0)) {
             case 0: case 3:
-                return false; // Barge right
+                return true; // Barge right
             case 1: case 2:
-                return true; // Barge left
+                return false; // Barge left
             default:
                 System.out.println("Error"); // TODO: Learn how to log, also Dahboard?
                 dirty |= 0b100;
