@@ -82,12 +82,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    // String s = "%s  %s  %s";
+    String s = "%s  %s";
     // System.out.println(String.format(s, 
     // m_robotContainer.locengine.procSideLeft(), 
     // m_robotContainer.locengine.reefSideLeft(), 
     // m_robotContainer.locengine.bargeSideLeft()));
 
+    Optional<EstimatedRobotPose> pose = m_robotContainer.downCamera.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
+    if (pose.isPresent()) {
+      System.out.println(String.format(s,pose.get().estimatedPose.toPose2d(),pose.get()) );
+    }
     LocatorEngine le = m_robotContainer.locengine;
 
     double rcord[] = {le.getRobotNormalized.get().x, le.getRobotNormalized.get().y};
