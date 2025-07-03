@@ -1,18 +1,33 @@
 {
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "Retained Values": {
+      "open": false
+    },
     "transitory": {
-      "Pose": {
-        "double[]##v_/Pose/robotPose": {
-          "open": true
-        }
-      },
       "SmartDashboard": {
+        "Module 0": {
+          "open": true
+        },
         "VisionSystemSim-main": {
           "Sim Field": {
             "open": true
           }
+        }
+      },
+      "qdb": {
+        "open": true,
+        "reef_points": {
+          "open": true
         },
-        "open": true
+        "reef_sides": {
+          "open": true
+        },
+        "robot": {
+          "open": true
+        }
       }
     },
     "types": {
