@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
       }}, 0.020);
 
-    addPeriodic(()->m_robotContainer.locengine.sendState(), 0.020);
+    addPeriodic(()->m_robotContainer.locengine.sendState(), 0.40);
   }
 
   @Override

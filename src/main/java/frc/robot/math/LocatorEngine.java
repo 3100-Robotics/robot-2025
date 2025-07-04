@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.LocationsFake;
 
@@ -59,7 +60,7 @@ public class LocatorEngine {
     private class Telemetry {
         private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
         private final NetworkTable qdbTable = inst.getTable("qdb");
-        private final BooleanEntry static_points_valid = inst.getBooleanTopic(".static_points_valid").getEntry(false);
+        private final BooleanEntry static_points_valid = qdbTable.getBooleanTopic(".static_points_valid").getEntry(false);
 
         private final NetworkTable robot = qdbTable.getSubTable("robot");
             private final DoubleArrayPublisher location = robot.getDoubleArrayTopic("location").publish();
@@ -169,6 +170,14 @@ public class LocatorEngine {
     }
 
     public void sendState() {
+        SmartDashboard.putString("sidereeftext", reefSideLeft() ? "left" : "right");
+        SmartDashboard.putString("sidebargetext", bargeSideLeft() ? "left" : "right");
+        SmartDashboard.putString("sideproctext", procSideLeft() ? "left" : "right");
+
+        SmartDashboard.putBoolean("sidereefleft", reefSideLeft());
+        SmartDashboard.putBoolean("sidebargeleft", bargeSideLeft());
+        SmartDashboard.putBoolean("sideprocleft", procSideLeft());
+
         telemetry.location.set(new double[]{getRobotNormalized.get().x, getRobotNormalized.get().y});
         telemetry.vec.set(new double[]{Math.cos(Math.toRadians(getRobotRotation360.get())), Math.sin(Math.toRadians(getRobotRotation360.get()))});
 
@@ -182,7 +191,6 @@ public class LocatorEngine {
             telemetry.three.set(new double[]{LocationsFake.THREE.x, LocationsFake.THREE.y});
             telemetry.one.set(new double[]{LocationsFake.ONE.x, LocationsFake.ONE.y});
             telemetry.static_points_valid.set(true);
-            telemetry.static_points_valid.unpublish();
         }
     }
 }
