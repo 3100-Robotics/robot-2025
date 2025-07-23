@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,7 +34,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
-    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/12; // kSpeedAt12Volts desired top speed
     private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -72,6 +73,7 @@ public class RobotContainer {
     // private String currentBinding = "normal";
 
     public RobotContainer() {
+        DriverStation.silenceJoystickConnectionWarning(true);
         autoroutines = new AutoRoutines(this);
         configureBindings();
         configureAutonomous();
@@ -167,6 +169,9 @@ public class RobotContainer {
 
         autoSlector.addCmd("nothing", Commands::none);
         autoSlector.addRoutine("leave", autoroutines::leave);
+
+        autoSlector.addRoutine("donotuse", autoroutines::dnu);
+
         autoSlector.addRoutine("score 1 algae", autoroutines::scoreAlgae1Leave);
         autoSlector.addRoutine("score 1.5 algae", autoroutines::score15Algae);
         autoSlector.addRoutine("score 2 algae", autoroutines::score2Algae);
@@ -236,7 +241,7 @@ public class RobotContainer {
         //     currentBinding = SmartDashboard.getString("binding", "normal");
         //     System.out.println("Hi! 2");
         // }));
-        switch (SmartDashboard.getString("binding", "normal")) {
+        switch (SmartDashboard.getString("binding", "even")) {
             case "sysid":
                 sysidBindings();
                 break;
@@ -255,7 +260,13 @@ public class RobotContainer {
         bindAutoCollect();
         bindIdle();
 
-        driverJoystick.x().onTrue(Commands.run(()->System.out.println("Test 0")));
+        // driverJoystick.x().onTrue(Commands.run(()->System.out.println("Test 0")));
+
+        driverJoystick.povRight().onTrue(Commands.sequence(
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"),
+            superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
+            superstructure.goToPos(States.resting, "neigher")));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

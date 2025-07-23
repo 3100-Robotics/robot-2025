@@ -56,6 +56,21 @@ public class AutoRoutines {
         return routine;
     }
 
+    public AutoRoutine dnu() {
+        AutoRoutine routine = autoFactory.newRoutine("donotuse");
+
+        AutoTrajectory leaveTraj = routine.trajectory("donotuse");
+
+        routine.active().onTrue(
+                Commands.sequence(
+                        leaveTraj.resetOdometry(),
+                        leaveTraj.cmd()
+                )
+        );
+
+        return routine;
+    }
+
     public AutoRoutine score1Algae() {
         AutoRoutine routine = autoFactory.newRoutine("1 algae");
 
