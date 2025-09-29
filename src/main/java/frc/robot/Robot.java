@@ -10,11 +10,8 @@ import org.json.JSONObject;
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.LocationsFake;
-import frc.robot.math.LocatorEngine;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -26,15 +23,17 @@ public class Robot extends TimedRobot {
   public Robot() {
     m_robotContainer = new RobotContainer();
 
-    // addPeriodic(() -> {
-    //   Optional<EstimatedRobotPose> pose = m_robotContainer.downCamera.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
-    //   if (pose.isPresent()) {
-    //     m_robotContainer.drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
-    //   }}, 0.020); 
+    addPeriodic(() -> {
+      Optional<EstimatedRobotPose> pose = m_robotContainer.downCamera.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
+      if (pose.isPresent()) {
+        m_robotContainer.drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
+      }}, 0.020);
+
+    addPeriodic(()->m_robotContainer.locengine.sendState(), 0.40);
   }
 
   @Override
-  public void robotPeriodic() {
+  public void robotPeriodic() { 
     CommandScheduler.getInstance().run();
   }
 
@@ -82,33 +81,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    // String s = "%s  %s  %s";
+    String s = "%s  %s";
     // System.out.println(String.format(s, 
     // m_robotContainer.locengine.procSideLeft(), 
     // m_robotContainer.locengine.reefSideLeft(), 
     // m_robotContainer.locengine.bargeSideLeft()));
 
-    LocatorEngine le = m_robotContainer.locengine;
-
-    double rcord[] = {le.getRobotNormalized.get().x, le.getRobotNormalized.get().y};
-    double vec[] = {Math.cos(Math.toRadians(le.getRobotRotation360.get())), Math.sin(Math.toRadians(le.getRobotRotation360.get()))};
-    double pointsr[][] = {rcord, vec};
-    jsonObject.put("robot", pointsr);
-
-    double down[] = {LocationsFake.REEF_DOWNLEFT.x, LocationsFake.REEF_DOWNLEFT.y};
-    double left[] = {LocationsFake.REEF_LEFT.x, LocationsFake.REEF_LEFT.y};
-    double up[] = {LocationsFake.REEF_UP.x, LocationsFake.REEF_UP.y};
-    double right[] = {LocationsFake.REEF_RIGHT.x, LocationsFake.REEF_RIGHT.y};
-    double reef_points[][] = {down,left,up,right};
-    jsonObject.put("reef_points", reef_points);
-
-    double seven[] = {LocationsFake.SEVEN.x, LocationsFake.SEVEN.y};
-    double three[] = {LocationsFake.THREE.x, LocationsFake.THREE.y};
-    double one[] = {LocationsFake.ONE.x, LocationsFake.ONE.y};
-    double reef_sides[][] = {seven,three,one};
-    jsonObject.put("reef_sides", reef_sides);
-
-    SmartDashboard.putString("qdbpoints", jsonObject.toString());
+    Optional<EstimatedRobotPose> pose = m_robotContainer.downCamera.getEstimatedGlobalPose(m_robotContainer.drivetrain.getPos());
+    if (pose.isPresent()) {
+      System.out.println(String.format(s,pose.get().estimatedPose.toPose2d(),pose.get()) );
+    }
   }
 
   @Override

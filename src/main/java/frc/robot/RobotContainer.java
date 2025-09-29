@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
 import frc.robot.Constants.superstructureConstants.States;
 import frc.robot.generated.TunerConstants;
 import frc.robot.math.LocatorEngine;
@@ -258,12 +259,17 @@ public class RobotContainer {
 
     private void evenBindings() {
         bindDrive(true);
-        bindClimber();
-        bindBargeAlign();
-        bindAutoCollect();
-        bindIdle();
+        // bindClimber();
+        // bindBargeAlign();
+        // bindAutoCollect();
+        // bindIdle();
 
-        // driverJoystick.x().onTrue(Commands.run(()->System.out.println("Test 0")));
+        driverJoystick.a().onTrue(Commands.sequence(
+            algae.set(0),
+            superstructure.goToPos(States.resting, "neither"),
+            superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
+            superstructure.goToPos(States.resting, "neigher")));
+        driverJoystick.b().onTrue(scoreAlgae(States.algaeToBardge, ()->locengine.bargeSideLeft() ? "left" : "right"));
 
         driverJoystick.povRight().onTrue(Commands.sequence(
             algae.set(0),

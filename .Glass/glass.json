@@ -1,7 +1,32 @@
 {
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "Retained Values": {
+      "open": false
+    },
     "transitory": {
+      "Pose": {
+        "double[]##v_/Pose/robotPose": {
+          "open": true
+        },
+        "open": true
+      },
       "SmartDashboard": {
+        "VisionSystemSim-main": {
+          "Sim Field": {
+            "open": true
+          }
+        },
+        "field2": {
+          "open": true
+        }
+      },
+      "photonvision": {
+        "open": true
+      },
+      "qdb": {
         "open": true
       }
     },
@@ -13,11 +38,66 @@
       "/SmartDashboard/Module 1": "Mechanism2d",
       "/SmartDashboard/Module 2": "Mechanism2d",
       "/SmartDashboard/Module 3": "Mechanism2d",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/auto selector": "String Chooser",
-      "/SmartDashboard/elevator + arm": "Mechanism2d"
+      "/SmartDashboard/elevator + arm": "Mechanism2d",
+      "/SmartDashboard/field2": "Field2d"
     },
     "windows": {
       "/Pose": {
+        "bottom": 1638,
+        "builtin": "2025 Reefscape",
+        "height": 8.051901817321777,
+        "left": 534,
+        "right": 3466,
+        "robotPose": {
+          "arrowColor": [
+            1.0,
+            1.0,
+            1.0,
+            255.0
+          ],
+          "color": [
+            0.04738561064004898,
+            0.5686274766921997,
+            0.09337744861841202,
+            255.0
+          ]
+        },
+        "top": 291,
+        "width": 17.54825210571289
+      },
+      "/SmartDashboard/Module 0": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Module 1": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Module 2": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Module 3": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/auto selector": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/elevator + arm": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/field2": {
         "bottom": 1638,
         "builtin": "2025 Reefscape",
         "height": 8.051901817321777,
@@ -32,9 +112,32 @@
     }
   },
   "NetworkTables Info": {
-    "visible": true
+    "Clients": {
+      "open": true
+    }
   },
   "NetworkTables Settings": {
-    "mode": "Client (NT4)"
+    "dsClient": false,
+    "mode": "Client (NT4)",
+    "serverTeam": "localhost",
+    "visible": false
+  },
+  "Plots": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612,
+            1.0
+          ],
+          "height": 338
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    }
   }
 }

@@ -3,8 +3,14 @@ package frc.robot.math;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.LocationsFake;
 
 // double rcord[] = {normalrobot.x, normalrobot.y};
 // double vec[] = {Math.cos(Math.toRadians(three60rot)), Math.sin(Math.toRadians(three60rot))};
@@ -51,6 +57,30 @@ import frc.robot.Constants;
 */
 
 public class LocatorEngine {
+    private class Telemetry {
+        private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        private final NetworkTable qdbTable = inst.getTable("qdb");
+        private final BooleanEntry static_points_valid = qdbTable.getBooleanTopic(".static_points_valid").getEntry(false);
+
+        private final NetworkTable robot = qdbTable.getSubTable("robot");
+            private final DoubleArrayPublisher location = robot.getDoubleArrayTopic("location").publish();
+            private final DoubleArrayPublisher vec = robot.getDoubleArrayTopic("vec").publish();
+
+        private final NetworkTable reef_points = qdbTable.getSubTable("reef_points");
+            private final DoubleArrayPublisher down = reef_points.getDoubleArrayTopic("down").publish();
+            private final DoubleArrayPublisher left = reef_points.getDoubleArrayTopic("left").publish();
+            private final DoubleArrayPublisher up = reef_points.getDoubleArrayTopic("up").publish();
+            private final DoubleArrayPublisher right = reef_points.getDoubleArrayTopic("right").publish();
+
+        private final NetworkTable reef_sides = qdbTable.getSubTable("reef_sides");
+            private final DoubleArrayPublisher seven = reef_sides.getDoubleArrayTopic("seven").publish();
+            private final DoubleArrayPublisher three = reef_sides.getDoubleArrayTopic("three").publish();
+            private final DoubleArrayPublisher one = reef_sides.getDoubleArrayTopic("one").publish();
+    }
+
+    private Telemetry telemetry = new Telemetry();
+
+    // Relevant calculation lambdas
     public Supplier<Pose2d> getRobotPose;
     public Supplier<Point> getRobotPositon = () -> new Point(getRobotPose.get().getX(), getRobotPose.get().getY());
     public Supplier<Boolean> isRobotOnBlue = () -> (getRobotPositon.get().x < 8.75);
@@ -136,6 +166,31 @@ public class LocatorEngine {
                 System.out.println("Error"); // TODO: Learn how to log, also Dahboard?
                 dirty |= 0b100;
                 return false;
+        }
+    }
+
+    public void sendState() {
+        SmartDashboard.putString("sidereeftext", reefSideLeft() ? "left" : "right");
+        SmartDashboard.putString("sidebargetext", bargeSideLeft() ? "left" : "right");
+        SmartDashboard.putString("sideproctext", procSideLeft() ? "left" : "right");
+
+        SmartDashboard.putBoolean("sidereefleft", reefSideLeft());
+        SmartDashboard.putBoolean("sidebargeleft", bargeSideLeft());
+        SmartDashboard.putBoolean("sideprocleft", procSideLeft());
+
+        telemetry.location.set(new double[]{getRobotNormalized.get().x, getRobotNormalized.get().y});
+        telemetry.vec.set(new double[]{Math.cos(Math.toRadians(getRobotRotation360.get())), Math.sin(Math.toRadians(getRobotRotation360.get()))});
+
+        if (!telemetry.static_points_valid.get()) {
+            telemetry.down.set(new double[]{LocationsFake.REEF_DOWNLEFT.x, LocationsFake.REEF_DOWNLEFT.y});
+            telemetry.left.set(new double[]{LocationsFake.REEF_LEFT.x, LocationsFake.REEF_LEFT.y});
+            telemetry.up.set(new double[]{LocationsFake.REEF_UP.x, LocationsFake.REEF_UP.y});
+            telemetry.right.set(new double[]{LocationsFake.REEF_RIGHT.x, LocationsFake.REEF_RIGHT.y});
+
+            telemetry.seven.set(new double[]{LocationsFake.SEVEN.x, LocationsFake.SEVEN.y});
+            telemetry.three.set(new double[]{LocationsFake.THREE.x, LocationsFake.THREE.y});
+            telemetry.one.set(new double[]{LocationsFake.ONE.x, LocationsFake.ONE.y});
+            telemetry.static_points_valid.set(true);
         }
     }
 }
