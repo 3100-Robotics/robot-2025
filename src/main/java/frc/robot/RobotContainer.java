@@ -14,6 +14,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -34,8 +35,8 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
-    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)/12; // kSpeedAt12Volts desired top speed
-    private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond)/2; // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -75,6 +76,7 @@ public class RobotContainer {
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
         autoroutines = new AutoRoutines(this);
+        drivetrain.resetPose(new Pose2d());
         configureBindings();
         configureAutonomous();
     }
@@ -206,10 +208,11 @@ public class RobotContainer {
         driverJoystick.a().onTrue(Commands.parallel(
             superstructure.goToPos(States.algaeFromLollipop, "right"),
             Commands.sequence(
-                Commands.waitSeconds(0.25),
-                climber.goToPos(8.1148).until(climber.atSetpoint()))));
+                Commands.waitSeconds(0.25)
+                // climber.goToPos(8.1148).until(climber.atSetpoint())
+                )));
         
-        driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
+        // driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
     }
 
     private void bindBargeAlign() {
@@ -241,7 +244,7 @@ public class RobotContainer {
         //     currentBinding = SmartDashboard.getString("binding", "normal");
         //     System.out.println("Hi! 2");
         // }));
-        switch (SmartDashboard.getString("binding", "even")) {
+        switch ("normal") {
             case "sysid":
                 sysidBindings();
                 break;
