@@ -22,6 +22,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.superstructureConstants.States;
@@ -80,10 +81,17 @@ public class RobotContainer {
                 true, // If alliance flipping should be enabled
                 drivetrain // The drive subsystem
         );
-
+        SmartDashboard.putBoolean("zesty", false);
         configureBindings();
         // configureSysidBindings();
         configureAutonomous();
+    }
+
+    public void rep() {
+        SmartDashboard.putBoolean("x", coDriverJoystick.x().getAsBoolean());
+        SmartDashboard.putBoolean("y", coDriverJoystick.y().getAsBoolean());
+        SmartDashboard.putBoolean("bumperL", driverJoystick.leftBumper().getAsBoolean());
+        SmartDashboard.putBoolean("bumperR", driverJoystick.rightBumper().getAsBoolean());
     }
 
     public Command collectAlgae(States collectingState, String side) {
@@ -208,6 +216,7 @@ public class RobotContainer {
         AutoTrajectory scoreToAlgae2 = routine.trajectory("score-algae2");
 
         routine.active().onTrue(Commands.sequence(
+
                 startToAlgae1.resetOdometry(),
                 startToAlgae1.cmd()));
 
@@ -245,14 +254,16 @@ public class RobotContainer {
         startToAlgae1.done().onTrue(Commands.parallel(
             collectAlgae(States.algaeFromReefLow, "right"),
             Commands.sequence(
-                Commands.waitUntil(algae.limitHit()),
+                Commands.waitUntil(algae.limitHit()), 
+                new InstantCommand(() ->         SmartDashboard.putBoolean("zesty", true)),
                 algae1ToScore.resetOdometry(),
                 algae1ToScore.spawnCmd())));
 
         algae1ToScore.done().onTrue(Commands.sequence(
                 Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
+                new InstantCommand(() ->         SmartDashboard.putBoolean("zesty", false)),
                 Commands.waitSeconds(0.5),
-                // Commands.waitUntil(superstructure.atSetpoint()),
+                // Commands.waitUntil(superstructure.atSetpoint()), 
                 // scoreAlgae(States.algaeToBardge, "left"),
                 scoreToAlgae2.spawnCmd()));
 
@@ -260,11 +271,13 @@ public class RobotContainer {
             collectAlgae(States.algaeFromReefHigh, "right"),
             Commands.sequence(
                 Commands.waitUntil(algae.limitHit()),
+                new InstantCommand(() ->         SmartDashboard.putBoolean("zesty", true)),
                 algae2ToScore.resetOdometry(),
                 algae2ToScore.spawnCmd())));
 
         algae2ToScore.done().onTrue(Commands.sequence(
             Commands.waitUntil(() -> superstructure.getState().equals(States.resting)),
+            new InstantCommand(() ->         SmartDashboard.putBoolean("zesty", false)),
             Commands.waitSeconds(0.5),
             // Commands.waitUntil(superstructure.atSetpoint()),
             // scoreAlgae(States.algaeToBardge, "left"),
@@ -417,10 +430,17 @@ public class RobotContainer {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
+            
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+            //     drive.withVelocityX(Math.copySign(-driverJoystick.getLeftY() * -driverJoystick.getLeftY(), -driverJoystick.getLeftY()) * MaxSpeed) // Drive forward with negative Y (forward)
+            //         .withVelocityY(Math.copySign(-driverJoystick.getLeftX() * -driverJoystick.getLeftX(), -driverJoystick.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
+            //         .withRotationalRate(Math.copySign(-driverJoystick.getRightX() * -driverJoystick.getRightX(), -driverJoystick.getRightX()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            // )
+            drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            
+            
             )
         );
 
@@ -429,8 +449,9 @@ public class RobotContainer {
         driverJoystick.a().onTrue(Commands.parallel(
             superstructure.goToPos(States.algaeFromLollipop, "right"),
             Commands.sequence(
+
                 Commands.waitSeconds(0.25),
-                climber.goToPos(7.75).until(climber.atSetpoint()))));
+                climber.goToPos(7.95).until(climber.atSetpoint()))));
         driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
 
         driverJoystick.y().whileTrue(drivetrain.allignToBarge());

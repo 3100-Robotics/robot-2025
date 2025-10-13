@@ -33,6 +33,7 @@ public class Climber extends SubsystemBase {
     private Trigger atSetpoint;
 
     public Climber () {
+        angleController.reset();
         winch.configure(config, null, null);
         angleController.setTolerance(1);
         atSetpoint = new Trigger(angleController::atSetpoint);
