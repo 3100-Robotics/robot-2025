@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;

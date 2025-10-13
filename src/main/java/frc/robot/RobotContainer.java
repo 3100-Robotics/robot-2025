@@ -61,8 +61,8 @@ public class RobotContainer {
     public final Vision downCamera = new Vision("Down", new Transform3d(new Translation3d(
         Units.inchesToMeters(-9.25),
         Units.inchesToMeters(-10.401),
-        Units.inchesToMeters(11.25)),
-        new Rotation3d(0, Math.toRadians(0), Math.toRadians(-90))));
+        Units.inchesToMeters(14.25)),
+        new Rotation3d(0, Math.toRadians(20), Math.toRadians(-90))));
 
     public final Vision gamePieceCamera = new Vision("up", new Transform3d());
 
@@ -419,7 +419,6 @@ public class RobotContainer {
         autoSelector.addRoutine("score 1.5 algae", this::score15Algae);
         autoSelector.addRoutine("score 2 algae", this::score2Algae);
         autoSelector.addRoutine("score 3 algae", this::score3Algae);
-        // autoSelector.addRoutine("score algae 1, safe", this::scoreAlgae1Leave);
         autoSelector.addRoutine("score many coral", this::scoreManyCoral);
 
         autoSelector.select("score 3 algae");
@@ -446,6 +445,7 @@ public class RobotContainer {
 
         climber.setDefaultCommand(climber.setSpeed(coDriverJoystick::getLeftX));
 
+        // climber 
         driverJoystick.a().onTrue(Commands.parallel(
             superstructure.goToPos(States.algaeFromLollipop, "right"),
             Commands.sequence(
@@ -454,20 +454,24 @@ public class RobotContainer {
                 climber.goToPos(7.95).until(climber.atSetpoint()))));
         driverJoystick.b().onTrue(climber.goToPos(0).until(coDriverJoystick.leftStick()));
 
+        // barge alignment (not great)
         driverJoystick.y().whileTrue(drivetrain.allignToBarge());
 
+        // auto collect
         driverJoystick.x().and(driverJoystick.leftBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "left"));
         driverJoystick.x().and(driverJoystick.rightBumper()).whileTrue(drivetrain.driveToGamePiece(gamePieceCamera::getLatestResult, algae.limitHit(), "right"));
 
+        // idle
         coDriverJoystick.povRight().onTrue(Commands.sequence(
             algae.set(0),
             superstructure.goToPos(States.resting, "neither"),
             superstructure.goToPos(States.rezeroElevator, "neither").until(elevator.atBottom()),
             superstructure.goToPos(States.resting, "neigher")));
 
-        driverJoystick.povLeft().onTrue(protectionArms.set("left"));
-        driverJoystick.povRight().onTrue(protectionArms.set("right"));
-        driverJoystick.povDown().onTrue(protectionArms.restArm());
+        
+        // driverJoystick.povLeft().onTrue(protectionArms.set("left"));
+        // driverJoystick.povRight().onTrue(protectionArms.set("right"));
+        // driverJoystick.povDown().onTrue(protectionArms.restArm());
 
         ///////////
         // ALGAE //
