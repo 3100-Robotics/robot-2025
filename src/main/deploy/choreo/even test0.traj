@@ -1,0 +1,34 @@
+{
+ "name":"even test0",
+ "version":1,
+ "snapshot":{
+  "waypoints":[],
+  "constraints":[],
+  "targetDt":0.05
+ },
+ "params":{
+  "waypoints":[
+    {"x":{"exp":"7.5914371666 m", "val":7.5914371666}, "y":{"exp":"4.0259 m", "val":4.0259}, "heading":{"exp":"-1.5713472876062315 rad", "val":-1.5713472876062315}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"6.119197368621826 m", "val":6.119197368621826}, "y":{"exp":"4.010519027709961 m", "val":4.010519027709961}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"5.5314621925354 m", "val":5.5314621925354}, "y":{"exp":"4.0028862953186035 m", "val":4.0028862953186035}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"7.317565441131592 m", "val":7.317565441131592}, "y":{"exp":"4.811975955963135 m", "val":4.811975955963135}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":false, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"7.89766788482666 m", "val":7.89766788482666}, "y":{"exp":"5.063862323760986 m", "val":5.063862323760986}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false}],
+  "constraints":[
+    {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":false},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"0 m / s", "val":0.0}}}, "enabled":true}],
+  "targetDt":{
+   "exp":"0.05 s",
+   "val":0.05
+  }
+ },
+ "trajectory":{
+  "sampleType":null,
+  "waypoints":[],
+  "samples":[],
+  "splits":[]
+ },
+ "events":[
+   {"name":"Marker", "from":{"target":3, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":""}}}]
+}

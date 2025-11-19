@@ -209,6 +209,17 @@ public class RobotContainer {
         return routine;
     }
 
+    public AutoRoutine evenFlow() {
+        AutoRoutine routine = autoFactory.newRoutine("even flow");
+
+        AutoTrajectory traj = routine.trajectory("even test0");
+
+        traj.bind("collectAlgae", Commands.run(()->collectAlgae(States.algaeFromReefLow, "right")));
+        routine.bind("collectAlgae", collectAlgae(null, null));
+
+        return routine;
+    }
+
     public AutoRoutine score15Algae() {
         AutoRoutine routine = autoFactory.newRoutine("2 algae");
         AutoTrajectory startToAlgae1 = routine.trajectory("start-algae1");
