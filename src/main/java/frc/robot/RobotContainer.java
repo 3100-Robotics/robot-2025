@@ -214,8 +214,8 @@ public class RobotContainer {
 
         AutoTrajectory traj = routine.trajectory("even test0");
 
-        traj.bind("collectAlgae", Commands.run(()->collectAlgae(States.algaeFromReefLow, "right")));
-        routine.bind("collectAlgae", collectAlgae(null, null));
+        // traj.bind("collectAlgae", Commands.run(()->collectAlgae(States.algaeFromReefLow, "right")));
+        // routine.bind("collectAlgae", collectAlgae(null, null));
 
         return routine;
     }
