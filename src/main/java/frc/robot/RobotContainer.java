@@ -214,6 +214,8 @@ public class RobotContainer {
 
         AutoTrajectory traj = routine.trajectory("even test0");
 
+        traj.atTime("collect0").onTrue(collectAlgae(States.algaeFromReefLow, "right"));
+
         // traj.bind("collectAlgae", Commands.run(()->collectAlgae(States.algaeFromReefLow, "right")));
         // routine.bind("collectAlgae", collectAlgae(null, null));
 
@@ -446,8 +448,8 @@ public class RobotContainer {
             //         .withVelocityY(Math.copySign(-driverJoystick.getLeftX() * -driverJoystick.getLeftX(), -driverJoystick.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
             //         .withRotationalRate(Math.copySign(-driverJoystick.getRightX() * -driverJoystick.getRightX(), -driverJoystick.getRightX()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             // )
-            drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+            drive.withVelocityX(driverJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             
             
